@@ -1,0 +1,38 @@
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  background: #fbc02d;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.table thead th {
+  border-top: none;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #6c757d;
+}
+
+.card {
+  border-radius: 12px;
+}
+
+.btn-warning {
+  background-color: #FFC107;
+  border: none;
+}
+
+.btn-warning:hover {
+  background-color: #ffb300;
+}
+
+.form-control:focus {
+  border-color: #FFC107;
+  box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
+}

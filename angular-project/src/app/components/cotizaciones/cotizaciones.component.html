@@ -1,0 +1,135 @@
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold m-0">Gestión de Cotizaciones</h2>
+    <button class="btn btn-primary" (click)="openAdd()">
+      <i class="fas fa-plus me-2"></i>Nueva Cotización
+    </button>
+  </div>
+
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <select class="form-select w-auto" [ngModel]="filterEstado()" (ngModelChange)="filterEstado.set($event)">
+        <option value="Todas">Todas las estados</option>
+        <option value="pendiente">Pendientes</option>
+        <option value="aprobada">Aprobadas</option>
+        <option value="rechazada">Rechazadas</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th>ID</th>
+            <th>Descripción</th>
+            <th>Medidas (An x Al x L)</th>
+            <th>Estado</th>
+            <th class="text-end">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (q of filteredQuotations(); track q.id_cotizacion) {
+          <tr>
+            <td><strong>#{{ q.id_cotizacion }}</strong></td>
+            <td>{{ q.descripcion }}</td>
+            <td>{{ q.ancho }} x {{ q.alto }} x {{ q.largo }}</td>
+            <td><span [class]="estadoBadge(q.estado)">{{ q.estado }}</span></td>
+            <td class="text-end">
+              <button class="btn btn-sm btn-outline-info me-2" (click)="openEdit(q)">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="delete(q.id_cotizacion!)">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+@if (isModalOpen()) {
+<div class="modal d-block" style="background: rgba(0,0,0,0.5)">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ editingQuote() ? 'Editar' : 'Nueva' }} Cotización</h5>
+        <button type="button" class="btn-close" (click)="isModalOpen.set(false)"></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="save()">
+          <div class="mb-3 position-relative">
+            <label class="form-label">Cliente</label>
+            <input type="text" class="form-control" placeholder="Buscar cliente..."
+                   [ngModel]="clienteSearch()" (ngModelChange)="clienteSearch.set($event); showSuggestions.set(true)" name="search">
+            
+            @if (showSuggestions() && clienteSuggestions().length > 0) {
+              <ul class="list-group position-absolute w-100 z-3 shadow">
+                @for (c of clienteSuggestions(); track c.id_cliente) {
+                  <li class="list-group-item list-group-item-action" (click)="selectCliente(c)">
+                    {{ c.nombre }} {{ c.apellidoP }}
+                  </li>
+                }
+              </ul>
+            }
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Categoría</label>
+              <select class="form-select" [(ngModel)]="form.categoria_id" name="cat" required>
+                <option [value]="0">Seleccione...</option>
+                @for (cat of categorias(); track cat.id_categoria) {
+                  <option [value]="cat.id_categoria">{{ cat.nombre }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Estado</label>
+              <select class="form-select" [(ngModel)]="form.estado" name="est">
+                <option value="pendiente">Pendiente</option>
+                <option value="aprobada">Aprobada</option>
+                <option value="rechazada">Rechazada</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <label class="form-label">Ancho</label>
+              <input type="number" class="form-control" [(ngModel)]="form.ancho" name="ancho">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Alto</label>
+              <input type="number" class="form-control" [(ngModel)]="form.alto" name="alto">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Largo</label>
+              <input type="number" class="form-control" [(ngModel)]="form.largo" name="largo">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Descripción del Trabajo</label>
+            <textarea class="form-control" [(ngModel)]="form.descripcion" name="desc" rows="2"></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Notas de Medidas</label>
+            <input type="text" class="form-control" [(ngModel)]="form.descripcion_medidas" name="med_desc">
+          </div>
+
+          <div class="modal-footer px-0 pb-0">
+            <button type="button" class="btn btn-secondary" (click)="isModalOpen.set(false)">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+}

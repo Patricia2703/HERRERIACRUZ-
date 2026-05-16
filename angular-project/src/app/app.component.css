@@ -1,0 +1,39 @@
+.app-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: #f4f6f9;
+}
+
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.content-inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+@media (min-width: 1024px) {
+  .content-inner {
+    padding: 24px;
+  }
+}
+
+.app-footer {
+  text-align: center;
+  font-size: 13px;
+  color: #9ca3af;
+  padding: 24px 0 8px;
+  margin-top: 24px;
+}

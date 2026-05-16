@@ -1,0 +1,20 @@
+.nav-btn {
+    color: #adb5bd; /* Color gris suave para ítems inactivos */
+    transition: all 0.3s ease;
+}
+
+.nav-btn i {
+    width: 20px; /* Ancho fijo para que todos los iconos alineen igual */
+    text-align: center;
+}
+
+.nav-btn:hover {
+    background-color: rgba(255, 193, 7, 0.1); /* Fondo amarillo tenue al pasar mouse */
+    color: #ffc107; /* Amarillo Bootstrap */
+}
+
+.nav-btn.active {
+    background-color: #ffc107; /* Fondo amarillo sólido */
+    color: #000; /* Texto negro para contraste */
+    font-weight: bold;
+}

@@ -1,0 +1,22 @@
+<div class="app-layout">
+  <app-sidebar
+    [isOpen]="isSidebarOpen()"
+    [activeItem]="activeMenuItem()"
+    (activeItemChange)="setMenuItem($event)">
+  </app-sidebar>
+
+  <div class="main-wrapper">
+    <app-header (toggleSidebar)="toggleSidebar()"></app-header>
+
+    <main class="main-content">
+      <div class="content-inner">
+        
+        <router-outlet></router-outlet>
+
+        <footer class="app-footer">
+          Herrería Cruz © 2026 — Sistema de Gestión Empresarial
+        </footer>
+      </div>
+    </main>
+  </div>
+</div>

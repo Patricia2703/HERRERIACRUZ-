@@ -1,0 +1,139 @@
+<div class="container-fluid p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold"><i class="fa-solid fa-user-tie me-2 text-warning"></i>Personal</h2>
+      <p class="text-muted small">Gestión de empleados y cargos de la herrería</p>
+    </div>
+    <button class="btn btn-warning fw-bold px-4 shadow-sm" (click)="openAdd()">
+      <i class="fa-solid fa-plus me-2"></i>Nuevo Empleado
+    </button>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="input-group">
+        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+        <input type="text" class="form-control border-start-0" placeholder="Buscar por nombre o apellido..." 
+               [(ngModel)]="searchTerm" [ngModelOptions]="{standalone: true}">
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th class="ps-4">ID</th>
+            <th>Empleado</th>
+            <th>Categoría</th>
+            <th>Estado</th> <th>Contacto</th>
+            <th class="text-end pe-4">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (e of filteredEmpleados(); track e.id_empleado) {
+            <tr [class.opacity-50]="e.activo === 0" [class.bg-light]="e.activo === 0">
+              <td class="ps-4 text-muted">#{{ e.id_empleado }}</td>
+              <td>
+                <div class="fw-bold">{{ e.nombre }} {{ e.apellidoP }}</div>
+                <div class="small text-muted">{{ e.apellidoM }}</div>
+              </td>
+              <td>
+                <span class="badge bg-info text-dark">
+                  {{ e.categoria_id === 1 ? 'AYUDANTE' : 
+                     e.categoria_id === 2 ? 'SOLDADOR' : 
+                     e.categoria_id === 3 ? 'PINTOR' : 'JEFE' }}
+                </span>
+              </td>
+              <td>
+                @if (e.activo === 1) {
+                  <span class="badge rounded-pill bg-success-subtle text-success border border-success">Activo</span>
+                } @else {
+                  <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary">Inactivo</span>
+                }
+              </td>
+              <td>
+                <i class="fa-solid fa-phone me-2 small text-muted"></i>{{ e.telefono }}
+              </td>
+              <td class="text-end pe-4">
+                <button (click)="openEdit(e)" class="btn btn-sm btn-outline-primary me-2" title="Editar">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                
+                <button (click)="toggleActivo(e)" 
+                        [class]="e.activo === 1 ? 'btn btn-sm btn-outline-danger' : 'btn btn-sm btn-outline-success'"
+                        [title]="e.activo === 1 ? 'Desactivar Empleado' : 'Reactivar Empleado'">
+                  <i [class]="e.activo === 1 ? 'fa-solid fa-user-slash' : 'fa-solid fa-user-check'"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+@if (isModalOpen()) {
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal d-block" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-warning">
+          <h5 class="modal-title fw-bold text-dark">{{ editingEmpleado() ? 'Editar Empleado' : 'Nuevo Empleado' }}</h5>
+          <button type="button" class="btn-close" (click)="isModalOpen.set(false)"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-bold small">Nombre</label>
+              <input type="text" class="form-control text-uppercase" [(ngModel)]="form.nombre">
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-bold small">Apellido Paterno</label>
+              <input type="text" class="form-control text-uppercase" [(ngModel)]="form.apellidoP">
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-bold small">Apellido Materno</label>
+              <input type="text" class="form-control text-uppercase" [(ngModel)]="form.apellidoM">
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold small">Puesto / Categoría</label>
+              <select class="form-select" [(ngModel)]="form.categoria_id">
+                <option [ngValue]="1">AYUDANTE GENERAL</option>
+                <option [ngValue]="2">SOLDADOR</option>
+                <option [ngValue]="3">PINTOR</option>
+                <option [ngValue]="4">JEFE DE TALLER</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-bold small">Teléfono (10 dígitos)</label>
+              <input type="text" class="form-control" [(ngModel)]="form.telefono" maxlength="10">
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-bold small">Fecha Nacimiento</label>
+              <input type="date" class="form-control" [(ngModel)]="form.fecha_nacimiento">
+            </div>
+            
+            @if (editingEmpleado()) {
+              <div class="col-12">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" role="switch" id="estadoCheck" 
+                         [(ngModel)]="form.activo" [ngModelOptions]="{standalone: true}"
+                         [checked]="form.activo === 1"
+                         (change)="form.activo = form.activo ? 1 : 0">
+                  <label class="form-check-label small fw-bold" for="estadoCheck">Empleado Activo</label>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-light" (click)="isModalOpen.set(false)">Cancelar</button>
+          <button type="button" class="btn btn-warning fw-bold px-4" (click)="save()">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

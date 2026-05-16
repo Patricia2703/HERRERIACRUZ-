@@ -1,0 +1,27 @@
+<header class="app-header">
+  <div class="header-inner">
+
+    <!-- Left -->
+    <div class="header-left">
+      <button class="menu-toggle" (click)="onToggle()">☰</button>
+      <div class="brand">
+        <div class="brand-icon">HC</div>
+        <h1>Herrería Cruz</h1>
+      </div>
+    </div>
+
+    <!-- Right -->
+    <div class="header-right">
+      <button class="btn-export" (click)="exportPDF()">
+        <span>⬇</span>
+        <span class="btn-label">Exportar PDF</span>
+      </button>
+      <button class="icon-btn" title="Notificaciones">
+        🔔
+        <span class="notif-dot"></span>
+      </button>
+      <button class="icon-btn" title="Usuario">👤</button>
+    </div>
+
+  </div>
+</header>

@@ -1,0 +1,99 @@
+<div class="container-fluid p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold"><i class="fa-solid fa-boxes-stacked me-2 text-warning"></i>Inventario de Materiales</h2>
+      <p class="text-muted">Control de stock y precios de insumos</p>
+    </div>
+    <button class="btn btn-warning fw-bold px-4 shadow-sm" (click)="openAdd()">
+      <i class="fa-solid fa-plus me-2"></i>Nuevo Material
+    </button>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="input-group">
+        <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+        <input type="text" class="form-control border-start-0" placeholder="Buscar material..." 
+               [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th class="ps-4">Material</th>
+            <th>Unidad</th>
+            <th>Precio Unitario</th>
+            <th>Stock Actual</th>
+            <th class="text-end pe-4">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of filteredMateriales(); track m.id_material) {
+            <tr>
+              <td class="ps-4 fw-bold text-uppercase">{{ m.nombre }}</td>
+              <td><span class="badge bg-info text-dark">{{ m.unidad }}</span></td>
+              <td>${{ m.precio_unitario | number:'1.2-2' }}</td>
+              <td>
+                <span [class]="m.stock <= 5 ? 'text-danger fw-bold' : ''">
+                  {{ m.stock }}
+                </span>
+              </td>
+              <td class="text-end pe-4">
+                <div class="btn-group shadow-sm">
+                  <button (click)="openEdit(m)" class="btn btn-sm btn-white border text-primary"><i class="fa-solid fa-pen"></i></button>
+                  <button (click)="delete(m.id_material!)" class="btn btn-sm btn-white border text-danger"><i class="fa-solid fa-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+@if (isModalOpen()) {
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal d-block" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-warning border-0">
+          <h5 class="modal-title fw-bold">{{ editingMaterial() ? 'Editar Material' : 'Nuevo Material' }}</h5>
+          <button type="button" class="btn-close" (click)="isModalOpen.set(false)"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label small fw-bold">NOMBRE DEL MATERIAL</label>
+              <input type="text" class="form-control text-uppercase" [(ngModel)]="form.nombre">
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-bold">UNIDAD</label>
+              <select class="form-select" [(ngModel)]="form.unidad_id">
+                @for (u of unidades(); track u.id_unidad) {
+                  <option [value]="u.id_unidad">{{ u.nombre | uppercase }}</option>
+                }
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-bold">PRECIO UNITARIO</label>
+              <input type="number" class="form-control" [(ngModel)]="form.precio_unitario">
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold">STOCK INICIAL</label>
+              <input type="number" class="form-control" [(ngModel)]="form.stock">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button class="btn btn-light" (click)="isModalOpen.set(false)">Cancelar</button>
+          <button class="btn btn-warning fw-bold" (click)="save()">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

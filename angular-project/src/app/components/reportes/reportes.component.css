@@ -1,0 +1,80 @@
+.page-container { display:flex; flex-direction:column; gap:24px; }
+
+.page-title-row { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.page-title-row h2 { font-size:28px; font-weight:700; color:#111827; margin:0 0 4px; }
+.page-title-row p  { font-size:13px; color:#6b7280; margin:0; }
+.export-btns { display:flex; gap:8px; flex-shrink:0; }
+.btn-csv { padding:9px 16px; border:1px solid #d1d5db; border-radius:8px; background:#fff; font-size:13px; font-weight:600; cursor:pointer; color:#374151; }
+.btn-csv:hover { background:#f9fafb; }
+.btn-pdf { padding:9px 16px; background:#4682B4; color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; }
+.btn-pdf:hover { background:#3a6e9e; }
+
+/* ── KPI Cards ── */
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
+.kpi-card { background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.08); padding:20px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.kpi-left { display:flex; align-items:center; gap:14px; }
+.kpi-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+.kpi-title { font-size:13px; font-weight:600; color:#374151; margin:0 0 2px; }
+.kpi-desc  { font-size:11px; color:#9ca3af; margin:0; }
+.kpi-value { font-size:22px; font-weight:700; white-space:nowrap; }
+
+/* ── Panel ── */
+.panel { background:#fff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.08); overflow:hidden; }
+.panel-header { padding:20px 24px 0; }
+.panel-header h3 { font-size:16px; font-weight:700; color:#1f2937; margin:0 0 4px; }
+.panel-header p  { font-size:13px; color:#6b7280; margin:0 0 16px; }
+
+/* ── Chart ── */
+.chart-wrapper { display:flex; align-items:flex-end; gap:8px; padding:0 24px 20px; height:180px; }
+.chart-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; }
+.chart-val { font-size:10px; font-weight:600; color:#6b7280; }
+.bar-wrap   { flex:1; display:flex; align-items:flex-end; width:100%; }
+.bar-ingreso { width:100%; border-radius:4px 4px 0 0; background:linear-gradient(to top,#4682B4,#5a9bd5); min-height:4px; transition:height .4s; }
+.chart-label { font-size:11px; color:#9ca3af; }
+
+/* ── Two col ── */
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+@media(max-width:768px) { .two-col { grid-template-columns:1fr; } }
+
+/* ── Distribution ── */
+.dist-list { padding:0 24px 20px; display:flex; flex-direction:column; gap:16px; }
+.dist-item {}
+.dist-label-row { display:flex; justify-content:space-between; margin-bottom:6px; }
+.dist-label { font-size:13px; font-weight:600; color:#374151; }
+.dist-count { font-size:13px; color:#6b7280; }
+.dist-bar  { height:8px; background:#f3f4f6; border-radius:4px; overflow:hidden; }
+.dist-fill { height:100%; border-radius:4px; transition:width .5s ease; }
+
+/* ── Top list ── */
+.top-list { padding:0 24px 20px; display:flex; flex-direction:column; gap:12px; }
+.top-item { display:flex; align-items:center; gap:12px; }
+.top-rank {
+  width:28px; height:28px; border-radius:50%;
+  background:#f3f4f6; color:#6b7280;
+  font-size:13px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.top-rank.gold   { background:#FFC107; color:#000; }
+.top-rank.silver { background:#d1d5db; color:#374151; }
+.top-rank.bronze { background:#d97706; color:#fff; }
+.top-info  { flex:1; display:flex; flex-direction:column; }
+.top-name  { font-size:14px; font-weight:600; color:#111827; }
+.top-sub   { font-size:12px; color:#9ca3af; }
+.top-value { font-size:14px; font-weight:700; color:#4682B4; white-space:nowrap; }
+
+/* ── Stock critical ── */
+.empty-stock { padding:24px; text-align:center; color:#16a34a; font-weight:600; }
+.stock-list  { padding:0 24px 20px; display:flex; flex-direction:column; gap:12px; }
+.stock-item  { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 14px; background:#f9fafb; border-radius:8px; }
+.stock-info  { display:flex; flex-direction:column; }
+.stock-name  { font-size:13px; font-weight:600; color:#111827; }
+.stock-meta  { font-size:11px; color:#9ca3af; }
+.stock-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.stock-qty   { font-size:14px; font-weight:700; color:#374151; }
+.stock-qty.out { color:#dc2626; }
+
+.badge { padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+.badge-green  { background:#dcfce7; color:#15803d; }
+.badge-yellow { background:#fef9c3; color:#a16207; }
+.badge-red    { background:#fee2e2; color:#b91c1c; }

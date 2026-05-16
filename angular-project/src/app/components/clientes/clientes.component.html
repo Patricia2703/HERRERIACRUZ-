@@ -1,0 +1,116 @@
+<div class="container-fluid p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold text-dark"><i class="fa-solid fa-address-book me-2 text-warning"></i>Gestión de Clientes</h2>
+      <p class="text-muted">Administra la información de contacto de tus clientes</p>
+    </div>
+    <button class="btn btn-warning fw-bold px-4 shadow-sm" (click)="openAdd()">
+      <i class="fa-solid fa-user-plus me-2"></i>Nuevo Cliente
+    </button>
+  </div>
+
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+      <div class="input-group">
+        <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
+        <input type="text" class="form-control border-start-0" placeholder="Buscar por nombre o teléfono..." 
+               [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th class="ps-4">ID</th>
+            <th>Nombre Completo</th>
+            <th>Teléfono</th>
+            <th>Correo</th>
+            <th class="text-end pe-4">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of filteredClientes(); track c.id_cliente) {
+            <tr>
+              <td class="ps-4 text-muted">#{{ c.id_cliente }}</td>
+              <td class="fw-bold text-uppercase">{{ c.nombre }} {{ c.apellidoP }} {{ c.apellidoM }}</td>
+              <td><i class="fa-solid fa-phone me-2 text-muted small"></i>{{ c.telefono }}</td>
+              <td><i class="fa-solid fa-envelope me-2 text-muted small"></i>{{ c.correo }}</td>
+              <td class="text-end pe-4">
+                <div class="btn-group shadow-sm">
+                  <button (click)="openEdit(c)" class="btn btn-sm btn-white border text-primary" title="Editar">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+                  <button (click)="delete(c.id_cliente!)" class="btn btn-sm btn-white border text-danger" title="Eliminar">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="text-center py-5 text-muted">
+                No se encontraron clientes registrados.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+@if (isModalOpen()) {
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content shadow-lg border-0">
+        <div class="modal-header bg-warning text-dark border-0">
+          <h5 class="modal-title fw-bold">
+            <i class="fa-solid fa-user-pen me-2"></i>
+            {{ editingCliente() ? 'Actualizar Cliente' : 'Registrar Nuevo' }}
+          </h5>
+          <button type="button" class="btn-close" (click)="isModalOpen.set(false)"></button>
+        </div>
+        
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label small fw-bold text-uppercase">Nombre</label>
+              <input type="text" class="form-control shadow-sm text-uppercase" [(ngModel)]="form.nombre" placeholder="Nombre del cliente">
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-bold text-uppercase">Apellido Paterno</label>
+              <input type="text" class="form-control shadow-sm text-uppercase" [(ngModel)]="form.apellidoP">
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-bold text-uppercase">Apellido Materno</label>
+              <input type="text" class="form-control shadow-sm text-uppercase" [(ngModel)]="form.apellidoM">
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-bold text-uppercase">Teléfono</label>
+              <input type="text" class="form-control shadow-sm" [(ngModel)]="form.telefono" maxlength="10" placeholder="10 dígitos">
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-bold text-uppercase">Correo</label>
+              <input type="email" class="form-control shadow-sm" [(ngModel)]="form.correo" placeholder="ejemplo@correo.com">
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold text-uppercase">Dirección</label>
+              <textarea class="form-control shadow-sm" [(ngModel)]="form.direccion" rows="2" placeholder="Calle, número, colonia..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-light px-4" (click)="isModalOpen.set(false)">Cancelar</button>
+          <button type="button" class="btn btn-warning fw-bold px-4 shadow-sm" (click)="save()">
+            {{ editingCliente() ? 'Guardar Cambios' : 'Confirmar Registro' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

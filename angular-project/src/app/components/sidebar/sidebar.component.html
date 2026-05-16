@@ -1,0 +1,38 @@
+@if (isOpen) {
+  <div class="sidebar-overlay" (click)="setActive(activeItem)"></div>
+}
+
+<aside class="sidebar" [class.sidebar-open]="isOpen">
+  <div class="sidebar-inner d-flex flex-column">
+
+    <div class="sidebar-logo p-4">
+      <div class="logo-icon bg-warning text-dark fw-bold rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">HC</div>
+      <div class="logo-text ms-2 d-inline-block align-middle">
+        <h2 class="h5 mb-0 fw-bold">Herrería Cruz</h2>
+        <p class="small text-muted mb-0">Admin Panel</p>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav flex-grow-1">
+      <ul class="list-unstyled px-3">
+        @for (item of menuItems; track item.id) {
+          <li class="mb-1">
+            <a
+              class="nav-btn d-flex align-items-center text-decoration-none p-3 rounded"
+              [routerLink]="item.route"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{exact: item.route === '/'}"
+              (click)="setActive(item.id)">
+              <i [class]="item.icon + ' me-3'"></i> <span class="nav-label">{{ item.label }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer p-4 border-top">
+      <p class="small text-muted mb-0">© 2026 Herrería Cruz</p>
+    </div>
+
+  </div>
+</aside>
