@@ -72,12 +72,13 @@
               <input type="text" class="form-control text-uppercase" [(ngModel)]="form.nombre">
             </div>
             <div class="col-6">
-              <label class="form-label small fw-bold">UNIDAD</label>
-              <select class="form-select" [(ngModel)]="form.unidad_id">
-                @for (u of unidades(); track u.id_unidad) {
-                  <option [value]="u.id_unidad">{{ u.nombre | uppercase }}</option>
-                }
-              </select>
+            <label class="form-label small fw-bold">UNIDAD</label>
+            <select class="form-select" [(ngModel)]="form.unidad_id">
+              <option value="" disabled selected>Seleccione una unidad</option>
+              @for (u of unidades(); track u.id_unidad) {
+                <option [value]="u.id_unidad">{{ u.nombre | uppercase }}</option>
+              }
+</select>
             </div>
             <div class="col-6">
               <label class="form-label small fw-bold">PRECIO UNITARIO</label>

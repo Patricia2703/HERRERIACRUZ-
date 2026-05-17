@@ -33,12 +33,15 @@ export class InventarioComponent implements OnInit {
     });
   }
 
-  cargarUnidades() {
-    this.api.getUnidades().subscribe({
-    next: (data: any) => this.materiales.set(data),
-    error: (err: any) => console.error(err)
-    });
-  }
+cargarUnidades() {
+  this.api.getUnidades().subscribe({
+    next: (data: any) => {
+      console.log('Unidades desde Flask:', data); // Esto te ayudará a ver en la consola de F12 si llegan bien
+      this.unidades.set(data); // Asegúrate de que use "this.unidades" y no otra variable
+    },
+    error: (err: any) => console.error('Error al cargar unidades:', err)
+  });
+}
 
   filteredMateriales = computed(() => {
     const q = this.searchTerm().toLowerCase().trim();

@@ -14,20 +14,7 @@ export interface Categoria {
   nombre: string;
 }
 
-export interface Cotizacion {
-  id_cotizacion?: number;
-  cliente_id: number;
-  categoria_id: number;
-  descripcion: string;
-  ancho: number;
-  alto: number;
-  largo: number;
-  descripcion_medidas: string;
-  estado: string;
-  // Campos opcionales para cuando el back une tablas
-  cliente_nombre?: string; 
-  categoria_nombre?: string;
-}
+
 
 export interface Trabajo {
   id_trabajo?: number;   // Usa el mismo nombre que en tu HTML y DB
@@ -91,4 +78,35 @@ export interface Material {
 export interface Unidad {
     id_unidad: number;
     nombre: string;
+}
+
+// Si tienes interfaces de Material o Cliente arriba, déjalas intactas.
+// Solo asegúrate de que Cotizacion y DetalleCotizacion queden estructuradas exactamente así:
+
+export interface Cotizacion {
+  id_cotizacion?: number;
+  cliente_id: number;
+  categoria_id: number;
+  descripcion: string;
+  ancho?: number;
+  alto?: number;
+  largo?: number;
+  descripcion_medidas?: string;
+  total?: number;
+  total_pagado?: number;
+  estado_pago?: 'sin_pago' | 'parcial' | 'pagado';
+  estado?: 'pendiente' | 'aprobada' | 'rechazada';
+  fecha?: string;
+  cliente?: string;
+  categoria?: string;
+}
+
+export interface DetalleCotizacion {
+  id_detalle?: number;
+  cotizacion_id?: number;
+  material_id: number;
+  cantidad: number;
+  precio_unitario: number;
+  subtotal?: number;
+  material_nombre?: string;
 }
