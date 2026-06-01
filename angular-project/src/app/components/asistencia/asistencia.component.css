@@ -1,0 +1,8 @@
+.backdrop-blur {
+  background-color: rgba(15, 23, 42, 0.4) !important;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.modal-content {
+  border-radius: 14px;
+}

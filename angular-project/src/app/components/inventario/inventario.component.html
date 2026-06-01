@@ -1,8 +1,9 @@
-<div class="container-fluid p-4">
+<div class="container-fluid p-4 position-relative">
+  
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h2 class="fw-bold"><i class="fa-solid fa-boxes-stacked me-2 text-warning"></i>Inventario de Materiales</h2>
-      <p class="text-muted">Control de stock y precios de insumos</p>
+      <p class="text-muted">Control de stock y precios de insumos de Herrería Cruz</p>
     </div>
     <button class="btn btn-warning fw-bold px-4 shadow-sm" (click)="openAdd()">
       <i class="fa-solid fa-plus me-2"></i>Nuevo Material
@@ -13,14 +14,14 @@
     <div class="card-body">
       <div class="input-group">
         <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-        <input type="text" class="form-control border-start-0" placeholder="Buscar material..." 
+        <input type="text" class="form-control border-start-0" placeholder="Buscar material por nombre..." 
                [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
       </div>
     </div>
   </div>
 
   <div class="card border-0 shadow-sm">
-    <div class="table-responsive">
+    <div class="table-responsive" style="border-radius: 8px;">
       <table class="table table-hover align-middle mb-0">
         <thead class="bg-light">
           <tr>
@@ -34,20 +35,28 @@
         <tbody>
           @for (m of filteredMateriales(); track m.id_material) {
             <tr>
-              <td class="ps-4 fw-bold text-uppercase">{{ m.nombre }}</td>
-              <td><span class="badge bg-info text-dark">{{ m.unidad }}</span></td>
-              <td>${{ m.precio_unitario | number:'1.2-2' }}</td>
+              <td class="ps-4 fw-bold text-uppercase text-dark">{{ m.nombre }}</td>
+              <td><span class="badge bg-info text-dark px-3 py-2 text-uppercase fw-bold">{{ m.unidad || 'pieza' }}</span></td>
+              <td class="fw-bold">${{ m.precio_unitario | number:'1.2-2' }}</td>
               <td>
-                <span [class]="m.stock <= 5 ? 'text-danger fw-bold' : ''">
+                <span [class]="m.stock <= 5 ? 'text-danger fw-bold fs-5' : 'text-secondary fw-bold'">
                   {{ m.stock }}
                 </span>
               </td>
               <td class="text-end pe-4">
                 <div class="btn-group shadow-sm">
-                  <button (click)="openEdit(m)" class="btn btn-sm btn-white border text-primary"><i class="fa-solid fa-pen"></i></button>
-                  <button (click)="delete(m.id_material!)" class="btn btn-sm btn-white border text-danger"><i class="fa-solid fa-trash"></i></button>
+                  <button (click)="openEdit(m)" class="btn btn-sm btn-white border text-primary" title="Editar Insumo">
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                  <button (click)="solicitarConfirmacionEliminar(m.id_material!)" class="btn btn-sm btn-white border text-danger" title="Eliminar Insumo">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
                 </div>
               </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="text-center py-4 text-muted">No existen materiales bajo los criterios de búsqueda.</td>
             </tr>
           }
         </tbody>
@@ -62,39 +71,86 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow-lg">
         <div class="modal-header bg-warning border-0">
-          <h5 class="modal-title fw-bold">{{ editingMaterial() ? 'Editar Material' : 'Nuevo Material' }}</h5>
+          <h5 class="modal-title fw-bold text-dark">
+            <i class="fa-solid fa-pen-to-square me-2"></i>{{ editingMaterial() ? 'Editar Material' : 'Nuevo Material' }}
+          </h5>
           <button type="button" class="btn-close" (click)="isModalOpen.set(false)"></button>
         </div>
         <div class="modal-body p-4">
           <div class="row g-3">
             <div class="col-12">
-              <label class="form-label small fw-bold">NOMBRE DEL MATERIAL</label>
-              <input type="text" class="form-control text-uppercase" [(ngModel)]="form.nombre">
+              <label class="form-label small fw-bold text-secondary">NOMBRE DEL MATERIAL</label>
+              <input type="text" class="form-control text-uppercase fw-bold" [(ngModel)]="form.nombre">
             </div>
             <div class="col-6">
-            <label class="form-label small fw-bold">UNIDAD</label>
-            <select class="form-select" [(ngModel)]="form.unidad_id">
-              <option value="" disabled selected>Seleccione una unidad</option>
-              @for (u of unidades(); track u.id_unidad) {
-                <option [value]="u.id_unidad">{{ u.nombre | uppercase }}</option>
-              }
-</select>
+              <label class="form-label small fw-bold text-secondary">UNIDAD DE MEDIDA</label>
+              <select class="form-select fw-bold" [(ngModel)]="form.unidad_id">
+                <option value="" disabled selected>Seleccione</option>
+                @for (u of unidades(); track u.id_unidad) {
+                  <option [value]="u.id_unidad">{{ u.nombre | uppercase }}</option>
+                }
+              </select>
             </div>
             <div class="col-6">
-              <label class="form-label small fw-bold">PRECIO UNITARIO</label>
-              <input type="number" class="form-control" [(ngModel)]="form.precio_unitario">
+              <label class="form-label small fw-bold text-secondary">PRECIO UNITARIO ($)</label>
+              <input type="number" class="form-control fw-bold" [(ngModel)]="form.precio_unitario">
             </div>
             <div class="col-12">
-              <label class="form-label small fw-bold">STOCK INICIAL</label>
-              <input type="number" class="form-control" [(ngModel)]="form.stock">
+              <label class="form-label small fw-bold text-secondary">CANTIDAD EN STOCK</label>
+              <input type="number" class="form-control fw-bold" [(ngModel)]="form.stock">
             </div>
           </div>
         </div>
-        <div class="modal-footer border-0">
-          <button class="btn btn-light" (click)="isModalOpen.set(false)">Cancelar</button>
-          <button class="btn btn-warning fw-bold" (click)="save()">Guardar</button>
+        <div class="modal-footer border-0 bg-light">
+          <button class="btn btn-secondary px-3" (click)="isModalOpen.set(false)">Cancelar</button>
+          <button class="btn btn-warning fw-bold px-4 shadow-sm" (click)="save()">Guardar Cambios</button>
         </div>
       </div>
     </div>
   </div>
 }
+
+@if (isDeleteModalOpen()) {
+  <div class="modal-backdrop fade show" style="z-index: 1060;"></div>
+  <div class="modal d-block" tabindex="-1" style="z-index: 1070;">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content border-0 shadow-lg text-center">
+        <div class="modal-body p-4">
+          <i class="fa-solid fa-circle-exclamation text-danger display-4 mb-3"></i>
+          <h5 class="fw-bold text-dark mb-2">¿Confirmar Eliminación?</h5>
+          <p class="text-muted small">Esta acción removerá permanentemente el registro del inventario.</p>
+          <div class="d-flex justify-content-center gap-2 mt-4">
+            <button class="btn btn-light border px-3 btn-sm" (click)="cancelarEliminacion()">Cancelar</button>
+            <button class="btn btn-danger px-3 btn-sm fw-bold shadow-sm" (click)="confirmarEliminacion()">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (banner(); as alertData) {
+  <div class="position-fixed bottom-0 start-0 w-100 p-0 shadow-lg" 
+       style="z-index: 2500; animation: slideUp 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;">
+    <div class="d-flex align-items-center justify-content-center py-3 px-4 text-white text-center fw-bold text-uppercase fs-5"
+         [ngClass]="alertData.type === 'success' ? 'bg-success' : 'bg-danger'">
+      <div class="container d-flex align-items-center justify-content-center">
+        <i class="fa-solid me-3 fs-3" [ngClass]="alertData.type === 'success' ? 'fa-square-check' : 'fa-triangle-exclamation'"></i>
+        <span>{{ alertData.message }}</span>
+      </div>
+    </div>
+  </div>
+}
+
+<style>
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+</style>

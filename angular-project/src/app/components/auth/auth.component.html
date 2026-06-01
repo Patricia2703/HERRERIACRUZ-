@@ -1,0 +1,110 @@
+<div class="auth-industrial-bg d-flex align-items-center justify-content-center min-vh-100 position-relative overflow-hidden">
+  
+  <div class="industrial-icon icon-1"><i class="fa-solid fa-gear fa-spin" style="--fa-animation-duration: 25s;"></i></div>
+  <div class="industrial-icon icon-2"><i class="fa-solid fa-hammer text-warning opacity-25"></i></div>
+  <div class="industrial-icon icon-3"><i class="fa-solid fa-screwdriver-wrench opacity-25"></i></div>
+  <div class="industrial-icon icon-4"><i class="fa-solid fa-fire-burner text-warning opacity-10"></i></div>
+
+  <div class="card auth-card shadow-lg border-0 rounded-4 p-4 m-3 position-relative z-3">
+    
+    <div class="text-center mb-4">
+      <div class="brand-avatar bg-warning text-dark d-inline-flex align-items-center justify-content-center rounded-circle mb-3 shadow-sm">
+        <i class="fa-solid fa-anvil fa-2x"></i>
+      </div>
+      <h3 class="fw-black text-dark mb-1 tracking-tight">HERRERÍA CRUZ</h3>
+      <p class="text-muted small px-3">
+        {{ esLogin ? 'Panel de Control de Producción y Diseño' : 'Crea tu perfil de acceso al sistema' }}
+      </p>
+    </div>
+
+    <form [formGroup]="formAuth" (ngSubmit)="enviar()">
+      
+      <div *ngIf="!esLogin" class="animate-fade-in">
+        <div class="mb-3">
+          <label class="form-label text-uppercase font-monospace small fw-bold text-secondary">Nombre(s)</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa-solid fa-user-gear"></i></span>
+            <input type="text" formControlName="nombre" class="form-control bg-light border-start-0 focus-warning">
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-6 mb-3">
+            <label class="form-label text-uppercase font-monospace small fw-bold text-secondary">Ap. Paterno</label>
+            <input type="text" formControlName="apellido_paterno" class="form-control bg-light focus-warning">
+          </div>
+          <div class="col-6 mb-3">
+            <label class="form-label text-uppercase font-monospace small fw-bold text-secondary">Ap. Materno</label>
+            <input type="text" formControlName="apellido_materno" class="form-control bg-light focus-warning">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label text-uppercase font-monospace small fw-bold text-secondary">Edad de Operación</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa-solid fa-id-card"></i></span>
+            <input type="number" formControlName="edad" class="form-control bg-light border-start-0 focus-warning" placeholder="Ej. 28">
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label text-uppercase font-monospace small fw-bold text-secondary">Correo Electrónico</label>
+        <div class="input-group">
+          <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa-solid fa-envelope"></i></span>
+          <input type="email" formControlName="correo" class="form-control bg-light border-start-0 focus-warning">
+        </div>
+      </div>
+
+      <div class="mb-4 position-relative">
+        <label class="form-label text-uppercase font-monospace small fw-bold text-secondary">
+          {{ esLogin ? 'Contraseña de Acceso' : 'Asignar Contraseña' }}
+        </label>
+        <div class="input-group">
+          <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa-solid fa-lock"></i></span>
+          <input type="password" formControlName="contrasena" class="form-control bg-light border-start-0 focus-warning" placeholder="••••••••">
+        </div>
+        
+        <div *ngIf="esLogin" class="text-end mt-1">
+          <a href="javascript:void(0)" class="text-decoration-none text-muted small fw-medium forget-link" (click)="recuperarContrasena()">
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
+      </div>
+
+      <button type="submit" 
+              class="btn btn-warning btn-forge w-100 fw-bold py-2.5 rounded-3 shadow mb-3 text-uppercase tracking-wider" 
+              [disabled]="esLogin ? (formAuth.get('correo')?.invalid || formAuth.get('contrasena')?.invalid) : formAuth.invalid">
+        {{ esLogin ? 'Ingresar al Taller' : 'Dar de Alta' }}
+      </button>
+
+      <div class="text-center">
+        <a href="javascript:void(0)" class="text-decoration-none small fw-bold toggle-link" (click)="conmutarModo()">
+          {{ esLogin ? '¿Nuevo integrante? Regístrate aquí' : '¿Ya tienes cuenta? Inicia sesión' }}
+        </a>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<div class="modal fade" id="modalRespuestaAuth" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow rounded-4 overflow-hidden">
+      <div class="text-center p-4 text-white" [ngClass]="modalEsExito ? 'bg-success' : 'bg-danger'">
+        <div class="mb-2">
+          <i [ngClass]="modalEsExito ? 'fa-solid fa-circle-check fa-3x' : 'fa-solid fa-circle-xmark fa-3x'"></i>
+        </div>
+        <h5 class="modal-title fw-bold m-0">{{ modalTitulo }}</h5>
+      </div>
+      <div class="modal-body text-center py-4 px-3">
+        <p class="text-secondary m-0 fw-medium">{{ modalMensaje }}</p>
+      </div>
+      <div class="modal-footer border-0 pt-0 justify-content-center pb-4">
+        <button type="button" class="btn btn-dark px-4 fw-bold rounded-3 shadow-sm text-uppercase small" (click)="cerrarModalNotificacion()">
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

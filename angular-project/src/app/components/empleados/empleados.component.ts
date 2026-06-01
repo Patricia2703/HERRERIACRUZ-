@@ -20,6 +20,15 @@ export class EmpleadosComponent implements OnInit {
   editingEmpleado = signal<Empleado | null>(null);
   searchTerm = signal('');
 
+  // 🚦 SEÑALES ADICIONALES PARA COMPONENTES DE NOTIFICACIÓN BOOTSTRAP
+  alertaOpen = signal<boolean>(false);        // Abre/Cierra modal de alerta
+  alertaMensaje = signal<string>('');         // Mensaje dinámico de la alerta
+  alertaEsExito = signal<boolean>(true);      // Define si es verde (éxito) o rojo (error)
+
+  confirmOpen = signal<boolean>(false);       // Abre/Cierra modal de confirmación de estado o borrado
+  empleadoSeleccionado = signal<Empleado | null>(null); // Temporal para guardar la referencia activa
+  modoConfirmacion = signal<'toggle' | 'delete'>('toggle'); // Qué tipo de confirmación se está haciendo
+
   // Formulario vinculado a la interfaz Empleado
   form: Empleado = this.resetForm();
 
@@ -30,16 +39,19 @@ export class EmpleadosComponent implements OnInit {
   cargarDatos() {
     this.api.getEmpleados().subscribe({
       next: (data) => this.empleados.set(data),
-      error: (err) => console.error('Error al cargar empleados:', err)
+      error: (err) => {
+        console.error('Error al cargar empleados:', err);
+        this.mostrarAlerta('No se pudo establecer conexión para cargar la lista de personal.', false);
+      }
     });
   }
 
-  // Filtro inteligente (Busca por nombre o apellido paterno)
+  // Filtro inteligente (Busca por nombre o apellido paterno de forma segura)
   filteredEmpleados = computed(() => {
     const q = this.searchTerm().toLowerCase().trim();
     return this.empleados().filter(e => 
-      e.nombre.toLowerCase().includes(q) || 
-      e.apellidoP.toLowerCase().includes(q)
+      (e.nombre || '').toLowerCase().includes(q) || 
+      (e.apellidoP || '').toLowerCase().includes(q)
     );
   });
 
@@ -55,31 +67,29 @@ export class EmpleadosComponent implements OnInit {
     this.isModalOpen.set(true);
   }
 
-save() {
-    // 1. Validaciones básicas
+  save() {
+    // 1. Validaciones básicas estilizadas
     if (!this.form.categoria_id) {
-      alert('Por favor seleccione una categoría');
+      this.mostrarAlerta('Por favor seleccione una categoría o puesto válido.', false);
       return;
     }
 
-    if (this.form.telefono.replace(/\D/g, '').length !== 10) {
-      alert('El teléfono debe tener 10 dígitos');
+    if (!this.form.telefono || this.form.telefono.replace(/\D/g, '').length !== 10) {
+      this.mostrarAlerta('El número de teléfono debe contener exactamente 10 dígitos.', false);
       return;
     }
 
     // 2. Limpieza de datos y Formato (Mayúsculas y Teléfono)
-    this.form.nombre = this.form.nombre.toUpperCase();
-    this.form.apellidoP = this.form.apellidoP.toUpperCase();
-    this.form.apellidoM = this.form.apellidoM.toUpperCase();
+    this.form.nombre = this.form.nombre?.toUpperCase().trim() || '';
+    this.form.apellidoP = this.form.apellidoP?.toUpperCase().trim() || '';
+    this.form.apellidoM = this.form.apellidoM?.toUpperCase().trim() || '';
     this.form.telefono = this.form.telefono.replace(/\D/g, '').substring(0, 10);
 
-    // --- NUEVO: CORRECCIÓN DE FORMATO DE FECHA PARA MYSQL ---
+    // --- CORRECCIÓN DE FORMATO DE FECHA PARA MYSQL ---
     if (this.form.fecha_nacimiento) {
-      // Forzamos que la fecha sea una cadena en formato YYYY-MM-DD
       const fecha = new Date(this.form.fecha_nacimiento);
       this.form.fecha_nacimiento = fecha.toISOString().split('T')[0];
     }
-    // --------------------------------------------------------
 
     // 3. Detectar si es edición o creación
     const esEdicion = !!this.editingEmpleado();
@@ -94,66 +104,91 @@ save() {
         this.isModalOpen.set(false);
         
         if (esEdicion) {
-          alert('¡Empleado actualizado exitosamente!');
+          this.mostrarAlerta('¡Registro de personal actualizado exitosamente! 📝', true);
         } else {
-          alert('¡Empleado registrado correctamente!');
+          this.mostrarAlerta('¡Nuevo colaborador registrado correctamente! 🛠️', true);
         }
         
         this.form = this.resetForm();
       },
-    error: (err: any) => {  // <-- Agrega el : any aquí
-      console.error(err);
-      alert('Error al guardar: ' + (err.error?.message || 'Error de conexión'));
-    }
-    });
-  }
-
-toggleActivo(e: Empleado) {
-  const nuevoEstado = e.activo === 1 ? 0 : 1;
-  const accion = nuevoEstado === 1 ? 'reactivar' : 'desactivar';
-
-  if (confirm(`¿Desea ${accion} a este empleado?`)) {
-    // 1. Creamos la copia del empleado
-    const empleadoEditado = { ...e, activo: nuevoEstado };
-
-    // 2. CORRECCIÓN CRÍTICA: Limpiamos la fecha antes de enviar
-    if (empleadoEditado.fecha_nacimiento) {
-      const fecha = new Date(empleadoEditado.fecha_nacimiento);
-      // Esto convierte 'Thu, 10 May...' en '1990-05-10'
-      empleadoEditado.fecha_nacimiento = fecha.toISOString().split('T')[0];
-    }
-
-    // 3. Enviamos la petición
-    this.api.updateEmpleado(e.id_empleado!, empleadoEditado).subscribe({
-      next: () => {
-        this.cargarDatos();
-        alert(`Empleado ${nuevoEstado === 1 ? 'reactivado' : 'desactivado'} correctamente.`);
-      },
-      error: (err) => {
-        console.error('Error detallado:', err);
-        alert('Error al cambiar el estado: Formato de fecha no válido en el servidor.');
+      error: (err: any) => {
+        console.error(err);
+        this.mostrarAlerta('Error al procesar la solicitud: ' + (err.error?.message || 'Error de comunicación'), false);
       }
     });
   }
-}
 
-  // --- FUNCIÓN DE BORRADO FÍSICO (Opcional) ---
+  // Prepara el cambio de estado (Activo/Inactivo) usando el modal Bootstrap
+  toggleActivo(e: Empleado) {
+    this.empleadoSeleccionado.set(e);
+    this.modoConfirmacion.set('toggle');
+    this.confirmOpen.set(true);
+  }
+
+  // Prepara el borrado físico de la base de datos usando el modal Bootstrap
   delete(id: number) {
-    if (confirm('¿Desea eliminar permanentemente este registro? (No recomendado si tiene historial)')) {
-      this.api.deleteEmpleado(id).subscribe({
+    const emp = this.empleados().find(e => e.id_empleado === id);
+    if (emp) {
+      this.empleadoSeleccionado.set(emp);
+      this.modoConfirmacion.set('delete');
+      this.confirmOpen.set(true);
+    }
+  }
+
+  // Manejador unificado de las confirmaciones del modal
+  ejecutarConfirmacion() {
+    const e = this.empleadoSeleccionado();
+    if (!e) return;
+
+    if (this.modoConfirmacion() === 'toggle') {
+      const nuevoEstado = e.activo === 1 ? 0 : 1;
+      const empleadoEditado = { ...e, activo: nuevoEstado };
+
+      if (empleadoEditado.fecha_nacimiento) {
+        const fecha = new Date(empleadoEditado.fecha_nacimiento);
+        empleadoEditado.fecha_nacimiento = fecha.toISOString().split('T')[0];
+      }
+
+      this.api.updateEmpleado(e.id_empleado!, empleadoEditado).subscribe({
         next: () => {
           this.cargarDatos();
-          alert('Registro eliminado de la base de datos.');
+          this.confirmOpen.set(false);
+          this.mostrarAlerta(`Empleado ${nuevoEstado === 1 ? 'reactivado' : 'desactivado'} correctamente.`, true);
         },
-    error: (err: any) => {  // <-- Agrega el : any aquí
-      console.error(err);
-      alert('Error al guardar: ' + (err.error?.message || 'Error de conexión'));
-    }
+        error: (err) => {
+          console.error('Error al cambiar el estado:', err);
+          this.confirmOpen.set(false);
+          this.mostrarAlerta('Error al modificar el estado del empleado en el servidor.', false);
+        }
+      });
+
+    } else if (this.modoConfirmacion() === 'delete') {
+      this.api.deleteEmpleado(e.id_empleado!).subscribe({
+        next: () => {
+          this.cargarDatos();
+          this.confirmOpen.set(false);
+          this.mostrarAlerta('Registro eliminado permanentemente de la base de datos.', true);
+        },
+        error: (err: any) => {
+          console.error(err);
+          this.confirmOpen.set(false);
+          this.mostrarAlerta('No se pudo borrar al empleado. Es posible que tenga registros históricos asociados.', false);
+        }
       });
     }
   }
 
-  // Reseteo del formulario con los campos de tu base de datos
+ 
+  mostrarAlerta(mensaje: string, esExito: boolean) {
+    this.alertaMensaje.set(mensaje);
+    this.alertaEsExito.set(esExito);
+    this.alertaOpen.set(true);
+  }
+
+  cerrarAlerta() {
+    this.alertaOpen.set(false);
+  }
+
   private resetForm(): Empleado {
     return {
       nombre: '',

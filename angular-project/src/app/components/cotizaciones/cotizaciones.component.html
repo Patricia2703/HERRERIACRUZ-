@@ -4,15 +4,15 @@
       <h2 class="fw-bold"><i class="fa-solid fa-file-invoice-dollar me-2 text-primary"></i>Presupuestos y Cotizaciones</h2>
       <p class="text-muted">Gestión de medidas, materiales asignados y aprobación de órdenes</p>
     </div>
-    <button class="btn btn-primary fw-bold px-4 shadow-sm" (click)="openAddCotizacion()">
-      <i class="fa-solid fa-plus me-2"></i>Nueva Cotización
+    <button class="btn btn-primary fw-bold shadow-sm d-flex align-items-center gap-2" (click)="openAddCotizacion()">
+      <i class="fa-solid fa-plus-circle"></i>  Nueva Cotización
     </button>
   </div>
 
   <div class="card border-0 shadow-sm">
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
-        <thead class="bg-light">
+        <thead class="table-light">
           <tr>
             <th class="ps-4">Folio</th>
             <th>Descripción Proyecto</th>
@@ -27,39 +27,43 @@
             <tr>
               <td class="ps-4 fw-bold">#{{ c.id_cotizacion }}</td>
               <td>
-                <div class="fw-bold text-uppercase">{{ c.descripcion || 'Sin descripción' }}</div>
+                <div class="fw-bold text-uppercase text-dark">{{ c.descripcion || 'Sin descripción' }}</div>
                 <small class="text-muted">Medidas: {{ c.descripcion_medidas }}</small>
               </td>
               <td>{{ c.alto }}m × {{ c.ancho }}m</td>
               <td class="fw-bold text-success">${{ c.total | number:'1.2-2' }}</td>
               <td>
-                <span class="badge" [ngClass]="{
+                <span class="badge px-3 py-2 text-uppercase" [ngClass]="{
                   'bg-warning text-dark': c.estado === 'pendiente',
-                  'bg-success': c.estado === 'aprobada',
-                  'bg-danger': c.estado === 'rechazada'
-                }">{{ c.estado | uppercase }}</span>
+                  'bg-success text-white': c.estado === 'aprobada',
+                  'bg-danger text-white': c.estado === 'rechazada'
+                }">{{ c.estado }}</span>
               </td>
               <td class="text-end pe-4">
-                <div class="btn-group shadow-sm">
+                <div class="d-flex gap-2 justify-content-end align-items-center">
                   
-              <button (click)="openGestionMateriales(c.id_cotizacion!)" class="btn btn-sm btn-outline-secondary" title="Asignar Materiales">
-                <i class="fa-solid fa-dolly me-1"></i> Materiales
-              </button>
+                  <button class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" 
+                          (click)="openGestionMateriales(c.id_cotizacion)">
+                    <i class="fas fa-dolly"></i> Materiales
+                  </button>
 
-              <button (click)="exportarPDF(c.id_cotizacion!)" class="btn btn-sm btn-outline-danger" title="Descargar PDF">
-                <i class="fa-solid fa-file-pdf"></i>
-              </button>
+                  <button class="btn btn-sm btn-primary d-flex align-items-center gap-1 shadow-sm" 
+                          (click)="exportarRemision(c.id_cotizacion)">
+                    <i class="fas fa-file-pdf"></i> Presupuesto
+                  </button>
 
                   @if (c.estado === 'pendiente') {
-                    <button (click)="cambiarEstado(c, 'aprobada')" class="btn btn-sm btn-success" title="Aprobar (Descarga Stock)">
-                      <i class="fa-solid fa-check"></i>
-                    </button>
-                    <button (click)="cambiarEstado(c, 'rechazada')" class="btn btn-sm btn-danger" title="Rechazar">
-                      <i class="fa-solid fa-xmark"></i>
-                    </button>
+                    <div class="btn-group shadow-sm ms-1">
+                      <button (click)="cambiarEstado(c, 'aprobada')" class="btn btn-sm btn-success" title="Aprobar (Descarga Stock)">
+                        <i class="fa-solid fa-check"></i>
+                      </button>
+                      <button (click)="cambiarEstado(c, 'rechazada')" class="btn btn-sm btn-danger" title="Rechazar">
+                        <i class="fa-solid fa-xmark"></i>
+                      </button>
+                    </div>
                   }
-
-                </div> </td>
+                </div> 
+              </td>
             </tr>
           }
         </tbody>
@@ -69,7 +73,7 @@
 </div>
 
 @if (isModalOpen()) {
-  <div class="modal-backdrop fade show"></div>
+  <div class="modal-backdrop fade show" style="background-color: rgba(0,0,0,0.4);"></div>
   <div class="modal d-block" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content border-0 shadow-lg">
@@ -80,7 +84,7 @@
         <div class="modal-body p-4">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label small fw-bold">CLIENTE Solicitante</label>
+              <label class="form-label small fw-bold text-secondary">CLIENTE Solicitante</label>
               <select class="form-select" [(ngModel)]="formCotizacion.cliente_id">
                 @for (cl of clientes(); track cl.id_cliente) {
                   <option [value]="cl.id_cliente">{{ cl.nombre }} {{ cl.apellidoP }}</option>
@@ -88,43 +92,43 @@
               </select>
             </div>
             <div class="col-md-6 mb-3">
-            <label class="form-label"><b>Tipo de Trabajo (Categoría)</b></label>
-            <select class="form-select" formControlName="categoria_id">
-              <option value="1">Puerta</option>
-              <option value="2">Ventana</option>
-              <option value="3">Zaguan</option>
-              <option value="4">Estructuras</option>
-              <option value="5">Tejado</option>
-              <option value="6">Cruz</option>
-              <option value="7">Cortina</option>
-              <option value="8">Barandal</option>
-            </select>
-        </div>
-            <div class="col-md-6">
-              <label class="form-label small fw-bold">DESCRIPCIÓN GENERAL DEL TRABAJO</label>
+              <label class="form-label small fw-bold text-secondary">Tipo de Trabajo (Categoría)</label>
+              <select class="form-select" [(ngModel)]="formCotizacion.categoria_id">
+                <option [value]="1">Puerta</option>
+                <option [value]="2">Ventana</option>
+                <option [value]="3">Zaguan</option>
+                <option [value]="4">Estructuras</option>
+                <option [value]="5">Tejado</option>
+                <option [value]="6">Cruz</option>
+                <option [value]="7">Cortina</option>
+                <option [value]="8">Barandal</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-bold text-secondary">DESCRIPCIÓN GENERAL DEL TRABAJO</label>
               <input type="text" class="form-control" [(ngModel)]="formCotizacion.descripcion" placeholder="Ej: Portón Zaguán con dos hojas">
             </div>
-            <div class="col-4">
-              <label class="form-label small fw-bold">ALTO (m)</label>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold text-secondary">ALTO (m)</label>
               <input type="number" class="form-control" [(ngModel)]="formCotizacion.alto">
             </div>
-            <div class="col-4">
-              <label class="form-label small fw-bold">ANCHO (m)</label>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold text-secondary">ANCHO (m)</label>
               <input type="number" class="form-control" [(ngModel)]="formCotizacion.ancho">
             </div>
-            <div class="col-4">
-              <label class="form-label small fw-bold">LARGO/ESPESOR (m)</label>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold text-secondary">LARGO/ESPESOR (m)</label>
               <input type="number" class="form-control" [(ngModel)]="formCotizacion.largo">
             </div>
             <div class="col-12">
-              <label class="form-label small fw-bold">NOTAS O ESPECIFICACIONES DE LAS MEDIDAS</label>
+              <label class="form-label small fw-bold text-secondary">NOTAS O ESPECIFICACIONES DE LAS MEDIDAS</label>
               <textarea class="form-control" [(ngModel)]="formCotizacion.descripcion_medidas" rows="2" placeholder="Marco estructural de 2 pulgadas..."></textarea>
             </div>
           </div>
         </div>
-        <div class="modal-footer border-0">
-          <button class="btn btn-light" (click)="isModalOpen.set(false)">Cancelar</button>
-          <button class="btn btn-primary fw-bold" (click)="saveCotizacion()">Iniciar Cotización</button>
+        <div class="modal-footer border-0 bg-light p-3">
+          <button class="btn btn-light border px-4" (click)="isModalOpen.set(false)">Cancelar</button>
+          <button class="btn btn-primary fw-bold px-4" (click)="saveCotizacion()">Iniciar Cotización</button>
         </div>
       </div>
     </div>
@@ -132,18 +136,20 @@
 }
 
 @if (isDetalleModalOpen()) {
-  <div class="modal-backdrop fade show"></div>
+  <div class="modal-backdrop fade show" style="background-color: rgba(0,0,0,0.4);"></div>
   <div class="modal d-block" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content border-0 shadow-lg">
         <div class="modal-header bg-dark text-white border-0">
-          <h5 class="modal-title fw-bold"><i class="fa-solid fa-boxes-packing me-2 text-warning"></i>Desglose de Materiales - Folio #{{ selectedCotizacionId() }}</h5>
+          <h5 class="modal-title fw-bold">
+            <i class="fa-solid fa-boxes-packing me-2 text-warning"></i>Desglose de Materiales - Folio #{{ selectedCotizacionId() }}
+          </h5>
           <button type="button" class="btn-close btn-close-white" (click)="isDetalleModalOpen.set(false)"></button>
         </div>
         <div class="modal-body p-4">
           <div class="row g-2 align-items-end border-bottom pb-4 mb-4">
             <div class="col-md-5">
-              <label class="form-label small fw-bold">SELECCIONAR MATERIAL</label>
+              <label class="form-label small fw-bold text-secondary">SELECCIONAR MATERIAL</label>
               <select class="form-select" [(ngModel)]="formDetalle.material_id" (change)="onMaterialSelect($any($event.target).value)">
                 @for (m of materialesDisponibles(); track m.id_material) {
                   <option [value]="m.id_material">{{ m.nombre }} (Stock: {{ m.stock }})</option>
@@ -151,22 +157,24 @@
               </select>
             </div>
             <div class="col-md-3">
-              <label class="form-label small fw-bold">CANTIDAD REQUERIDA</label>
+              <label class="form-label small fw-bold text-secondary">CANTIDAD REQUERIDA</label>
               <input type="number" class="form-control" [(ngModel)]="formDetalle.cantidad">
             </div>
             <div class="col-md-2">
-              <label class="form-label small fw-bold">P. UNITARIO</label>
+              <label class="form-label small fw-bold text-secondary">P. UNITARIO</label>
               <input type="number" class="form-control" [(ngModel)]="formDetalle.precio_unitario">
             </div>
             <div class="col-md-2">
-              <button class="btn btn-warning fw-bold w-100" (click)="agregarMaterial()"><i class="fa-solid fa-plus"></i> Añadir</button>
+              <button class="btn btn-warning fw-bold w-100 d-flex align-items-center justify-content-center gap-1 text-dark" (click)="agregarMaterial()">
+                <i class="fa-solid fa-plus"></i> Añadir
+              </button>
             </div>
           </div>
 
           <h6 class="fw-bold text-uppercase small text-muted mb-3">Lista de Materiales Presupuestados</h6>
           <div class="table-responsive" style="max-height: 250px;">
-            <table class="table table-sm align-middle">
-              <thead>
+            <table class="table table-sm align-middle table-hover">
+              <thead class="table-light small">
                 <tr>
                   <th>Material</th>
                   <th class="text-center">Cantidad</th>
@@ -178,28 +186,73 @@
               <tbody>
                 @for (d of detallesActuales(); track d.id_detalle) {
                   <tr>
-                    <td class="text-uppercase fw-bold">{{ d.material_nombre }}</td>
-                    <td class="text-center">{{ d.cantidad }}</td>
+                    <td class="text-uppercase fw-bold text-dark">{{ d.material_nombre }}</td>
+                    <td class="text-center fw-semibold">{{ d.cantidad }}</td>
                     <td>${{ d.precio_unitario | number:'1.2-2' }}</td>
                     <td class="fw-bold text-dark">${{ (d.cantidad * d.precio_unitario) | number:'1.2-2' }}</td>
                     <td class="text-end">
-                      <button (click)="eliminarMaterial(d.id_detalle!)" class="btn btn-link text-danger p-0"><i class="fa-solid fa-trash-can"></i></button>
+                      <button (click)="eliminarMaterial(d.id_detalle!)" class="btn btn-link text-danger p-0">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
                     </td>
                   </tr>
                 }
                 @if (detallesActuales().length === 0) {
                   <tr>
-                    <td colspan="5" class="text-center text-muted py-3">No hay materiales asignados a este proyecto.</td>
+                    <td colspan="5" class="text-center text-muted py-3 small">No hay materiales asignados a este proyecto.</td>
                   </tr>
                 }
               </tbody>
             </table>
           </div>
         </div>
-        <div class="modal-footer bg-light border-0">
-          <button class="btn btn-secondary" (click)="isDetalleModalOpen.set(false)">Cerrar Desglose</button>
+        <div class="modal-footer bg-light border-0 p-3">
+          <button class="btn btn-secondary px-4" (click)="isDetalleModalOpen.set(false)">Cerrar Desglose</button>
         </div>
       </div>
     </div>
   </div>
 }
+
+<div class="modal d-block bg-dark bg-opacity-25" tabindex="-1" style="z-index: 2000;" *ngIf="alertaOpen()">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden text-center">
+      <div class="p-4 text-white" [ngClass]="alertaEsExito() ? 'bg-success' : 'bg-danger'">
+        <i class="fas fa-3x mb-2" [ngClass]="alertaEsExito() ? 'fa-check-circle' : 'fa-exclamation-triangle'"></i>
+        <h5 class="fw-bold m-0">{{ alertaEsExito() ? '¡Excelente!' : '¡Atención!' }}</h5>
+      </div>
+      <div class="modal-body p-4 bg-white">
+        <p class="text-secondary m-0 small fw-semibold">{{ alertaMensaje() }}</p>
+      </div>
+      <div class="p-3 bg-light border-top text-center">
+        <button type="button" class="btn btn-dark fw-bold px-4 btn-sm rounded-pill shadow-sm" (click)="cerrarAlerta()">
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal d-block bg-dark bg-opacity-50" tabindex="-1" style="z-index: 2100;" *ngIf="confirmOpen()">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden">
+      <div class="p-4 bg-danger text-white text-center">
+        <i class="fa-solid fa-boxes-stacked fa-3x mb-2"></i>
+        <h5 class="fw-bold m-0">¿Quitar Material?</h5>
+      </div>
+      <div class="modal-body p-4 text-center bg-white">
+        <p class="text-muted m-0 small fw-semibold">
+          ¿Seguro que deseas retirar este insumo del desglose del presupuesto?
+        </p>
+      </div>
+      <div class="modal-footer bg-light p-3 border-top d-flex justify-content-between">
+        <button type="button" class="btn btn-sm btn-secondary px-3 rounded-pill" (click)="confirmOpen.set(false)">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-sm btn-danger fw-bold px-3 rounded-pill shadow-sm" (click)="confirmarRetirarMaterial()">
+          Sí, Quitar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

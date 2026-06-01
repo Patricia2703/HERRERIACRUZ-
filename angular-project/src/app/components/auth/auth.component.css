@@ -1,0 +1,108 @@
+/* 🔧 FONDO INDUSTRIAL AMARILLO CON MALLA TÉCNICA */
+.auth-industrial-bg {
+  background: radial-gradient(circle at center, #ffdf60 0%, #e0b000 70%, #b88600 100%);
+  background-image: 
+    radial-gradient(circle at center, rgba(255, 223, 96, 0.8) 0%, rgba(224, 176, 0, 0.9) 70%, rgba(184, 134, 0, 1) 100%),
+    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  background-size: 100% 100%, 24px 24px, 24px 24px;
+}
+
+/* 🌀 ICONOS DE HERRERÍA EN SEGUNDO PLANO */
+.industrial-icon {
+  position: absolute;
+  color: rgba(0, 0, 0, 0.06);
+  font-size: 8rem;
+  pointer-events: none;
+  user-select: none;
+}
+.icon-1 { top: -5%; left: -2%; font-size: 14rem; }
+.icon-2 { bottom: 8%; left: 5%; transform: rotate(-15deg); font-size: 10rem; }
+.icon-3 { top: 12%; right: -3%; transform: rotate(45deg); font-size: 11rem; }
+.icon-4 { bottom: -5%; right: 8%; font-size: 13rem; }
+
+/* 🚀 EFECTO FLOTANTE DE LA TARJETA (Levitación suave) */
+.auth-card {
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(8px);
+  max-width: 440px;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  animation: float 5s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.15);
+  }
+  50% {
+    transform: translateY(-10px);
+    box-shadow: 0 30px 50px rgba(0, 0, 0, 0.25);
+  }
+  100% {
+    transform: translateY(0px);
+    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* ⚙️ DETALLES ESTÉTICOS COMPLEMENTARIOS */
+.brand-avatar {
+  width: 65px;
+  height: 65px;
+  border: 3px solid #000;
+}
+
+.fw-black {
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.focus-warning:focus {
+  border-color: #ffc107 !important;
+  box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25) !important;
+  background-color: #fff !important;
+}
+
+.btn-forge {
+  background-color: #212529 !important;
+  color: #ffc107 !important;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-forge:hover:not([disabled]) {
+  background-color: #000 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3) !important;
+}
+
+.btn-forge:active {
+  transform: translateY(1px);
+}
+
+.toggle-link {
+  color: #495057;
+  transition: color 0.2s ease;
+}
+.toggle-link:hover {
+  color: #000;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.forget-link {
+  transition: color 0.2s ease-in-out;
+  font-size: 0.82rem;
+}
+
+.forget-link:hover {
+  color: #212529 !important; /* Cambia a un negro industrial al posicionarse encima */
+  text-decoration: underline !important;
+}

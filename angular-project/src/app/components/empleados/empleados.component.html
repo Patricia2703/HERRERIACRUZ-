@@ -14,7 +14,7 @@
       <div class="input-group">
         <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
         <input type="text" class="form-control border-start-0" placeholder="Buscar por nombre o apellido..." 
-               [(ngModel)]="searchTerm" [ngModelOptions]="{standalone: true}">
+               [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)">
       </div>
     </div>
   </div>
@@ -27,7 +27,8 @@
             <th class="ps-4">ID</th>
             <th>Empleado</th>
             <th>Categoría</th>
-            <th>Estado</th> <th>Contacto</th>
+            <th>Estado</th> 
+            <th>Contacto</th>
             <th class="text-end pe-4">Acciones</th>
           </tr>
         </thead>
@@ -36,14 +37,14 @@
             <tr [class.opacity-50]="e.activo === 0" [class.bg-light]="e.activo === 0">
               <td class="ps-4 text-muted">#{{ e.id_empleado }}</td>
               <td>
-                <div class="fw-bold">{{ e.nombre }} {{ e.apellidoP }}</div>
-                <div class="small text-muted">{{ e.apellidoM }}</div>
+                <div class="fw-bold text-uppercase">{{ e.nombre }} {{ e.apellidoP }}</div>
+                <div class="small text-muted text-uppercase">{{ e.apellidoM }}</div>
               </td>
               <td>
-                <span class="badge bg-info text-dark">
-                  {{ e.categoria_id === 1 ? 'AYUDANTE' : 
+                <span class="badge bg-info text-dark fw-bold">
+                  {{ e.categoria_id === 1 ? 'AYUDANTE GENERAL' : 
                      e.categoria_id === 2 ? 'SOLDADOR' : 
-                     e.categoria_id === 3 ? 'PINTOR' : 'JEFE' }}
+                     e.categoria_id === 3 ? 'PINTOR' : 'JEFE DE TALLER' }}
                 </span>
               </td>
               <td>
@@ -57,15 +58,29 @@
                 <i class="fa-solid fa-phone me-2 small text-muted"></i>{{ e.telefono }}
               </td>
               <td class="text-end pe-4">
-                <button (click)="openEdit(e)" class="btn btn-sm btn-outline-primary me-2" title="Editar">
-                  <i class="fa-solid fa-pen"></i>
-                </button>
-                
-                <button (click)="toggleActivo(e)" 
-                        [class]="e.activo === 1 ? 'btn btn-sm btn-outline-danger' : 'btn btn-sm btn-outline-success'"
-                        [title]="e.activo === 1 ? 'Desactivar Empleado' : 'Reactivar Empleado'">
-                  <i [class]="e.activo === 1 ? 'fa-solid fa-user-slash' : 'fa-solid fa-user-check'"></i>
-                </button>
+                <div class="btn-group shadow-sm">
+                  <button (click)="openEdit(e)" class="btn btn-sm btn-white border text-primary" title="Editar">
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                  
+                  <button (click)="toggleActivo(e)" 
+                          class="btn btn-sm btn-white border"
+                          [class.text-danger]="e.activo === 1"
+                          [class.text-success]="e.activo === 0"
+                          [title]="e.activo === 1 ? 'Desactivar Empleado' : 'Reactivar Empleado'">
+                    <i [class]="e.activo === 1 ? 'fa-solid fa-user-slash' : 'fa-solid fa-user-check'"></i>
+                  </button>
+
+                  <button (click)="delete(e.id_empleado!)" class="btn btn-sm btn-white border text-secondary" title="Eliminar Definitivo">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">
+                No hay empleados registrados con esos criterios.
               </td>
             </tr>
           }
@@ -77,29 +92,32 @@
 
 @if (isModalOpen()) {
   <div class="modal-backdrop fade show"></div>
-  <div class="modal d-block" tabindex="-1">
+  <div class="modal d-block animate__animated animate__fadeIn animate__faster" tabindex="-1" style="background: rgba(0,0,0,0.4);">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content border-0 shadow">
+      <div class="modal-content border-0 shadow-lg">
         <div class="modal-header bg-warning">
-          <h5 class="modal-title fw-bold text-dark">{{ editingEmpleado() ? 'Editar Empleado' : 'Nuevo Empleado' }}</h5>
+          <h5 class="modal-title fw-bold text-dark">
+            <i class="fa-solid fa-user-gear me-2"></i>
+            {{ editingEmpleado() ? 'Editar Datos de Colaborador' : 'Registrar Nuevo Empleado' }}
+          </h5>
           <button type="button" class="btn-close" (click)="isModalOpen.set(false)"></button>
         </div>
         <div class="modal-body p-4">
           <div class="row g-3">
             <div class="col-12">
-              <label class="form-label fw-bold small">Nombre</label>
-              <input type="text" class="form-control text-uppercase" [(ngModel)]="form.nombre">
+              <label class="form-label fw-bold small text-secondary text-uppercase">Nombre</label>
+              <input type="text" class="form-control text-uppercase" [(ngModel)]="form.nombre" placeholder="Nombre(s)">
             </div>
             <div class="col-6">
-              <label class="form-label fw-bold small">Apellido Paterno</label>
+              <label class="form-label fw-bold small text-secondary text-uppercase">Apellido Paterno</label>
               <input type="text" class="form-control text-uppercase" [(ngModel)]="form.apellidoP">
             </div>
             <div class="col-6">
-              <label class="form-label fw-bold small">Apellido Materno</label>
+              <label class="form-label fw-bold small text-secondary text-uppercase">Apellido Materno</label>
               <input type="text" class="form-control text-uppercase" [(ngModel)]="form.apellidoM">
             </div>
             <div class="col-12">
-              <label class="form-label fw-bold small">Puesto / Categoría</label>
+              <label class="form-label fw-bold small text-secondary text-uppercase">Puesto / Categoría</label>
               <select class="form-select" [(ngModel)]="form.categoria_id">
                 <option [ngValue]="1">AYUDANTE GENERAL</option>
                 <option [ngValue]="2">SOLDADOR</option>
@@ -108,32 +126,80 @@
               </select>
             </div>
             <div class="col-6">
-              <label class="form-label fw-bold small">Teléfono (10 dígitos)</label>
-              <input type="text" class="form-control" [(ngModel)]="form.telefono" maxlength="10">
+              <label class="form-label fw-bold small text-secondary text-uppercase">Teléfono (10 dígitos)</label>
+              <input type="text" class="form-control" [(ngModel)]="form.telefono" maxlength="10" placeholder="Ej: 4421234567">
             </div>
             <div class="col-6">
-              <label class="form-label fw-bold small">Fecha Nacimiento</label>
+              <label class="form-label fw-bold small text-secondary text-uppercase">Fecha Nacimiento</label>
               <input type="date" class="form-control" [(ngModel)]="form.fecha_nacimiento">
             </div>
             
             @if (editingEmpleado()) {
-              <div class="col-12">
+              <div class="col-12 border-top pt-3 mt-3">
                 <div class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" role="switch" id="estadoCheck" 
-                         [(ngModel)]="form.activo" [ngModelOptions]="{standalone: true}"
                          [checked]="form.activo === 1"
-                         (change)="form.activo = form.activo ? 1 : 0">
-                  <label class="form-check-label small fw-bold" for="estadoCheck">Empleado Activo</label>
+                         (change)="form.activo = ($any($event.target).checked ? 1 : 0)">
+                  <label class="form-check-label small fw-bold text-dark" for="estadoCheck">Estatus Laboral Activo</label>
                 </div>
               </div>
             }
           </div>
         </div>
-        <div class="modal-footer border-0">
-          <button type="button" class="btn btn-light" (click)="isModalOpen.set(false)">Cancelar</button>
-          <button type="button" class="btn btn-warning fw-bold px-4" (click)="save()">Guardar</button>
+        <div class="modal-footer border-0 bg-light p-3">
+          <button type="button" class="btn btn-light border px-4" (click)="isModalOpen.set(false)">Cancelar</button>
+          <button type="button" class="btn btn-warning fw-bold px-4 shadow-sm" (click)="save()">Guardar Cambios</button>
         </div>
       </div>
     </div>
   </div>
 }
+
+<div class="modal d-block bg-dark bg-opacity-25" tabindex="-1" style="z-index: 2000;" *ngIf="alertaOpen()">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden text-center">
+      <div class="p-4 text-white" [ngClass]="alertaEsExito() ? 'bg-success' : 'bg-danger'">
+        <i class="fas fa-3x mb-2" [ngClass]="alertaEsExito() ? 'fa-check-circle' : 'fa-exclamation-triangle'"></i>
+        <h5 class="fw-bold m-0">{{ alertaEsExito() ? '¡Excelente!' : '¡Atención!' }}</h5>
+      </div>
+      <div class="modal-body p-4 bg-white">
+        <p class="text-secondary m-0 small fw-semibold">{{ alertaMensaje() }}</p>
+      </div>
+      <div class="p-3 bg-light border-top text-center">
+        <button type="button" class="btn btn-dark fw-bold px-4 btn-sm rounded-pill shadow-sm" (click)="cerrarAlerta()">
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal d-block bg-dark bg-opacity-50" tabindex="-1" style="z-index: 1900;" *ngIf="confirmOpen()">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden">
+      <div class="p-4 bg-danger text-white text-center">
+        <i class="fa-solid fa-user-shield fa-3x mb-2"></i>
+        <h5 class="fw-bold m-0">Confirmar Acción</h5>
+      </div>
+      <div class="modal-body p-4 text-center bg-white">
+        <p class="text-muted m-0 small fw-semibold">
+          @if (modoConfirmacion() === 'toggle') {
+            ¿Seguro que deseas modificar el estatus de ingreso/baja para 
+            <span class="text-dark fw-bold">{{ empleadoSeleccionado()?.nombre }}</span>?
+          } @else {
+            ¿Deseas eliminar de forma definitiva a 
+            <span class="text-dark fw-bold">{{ empleadoSeleccionado()?.nombre }}</span> de la base de datos? Esto puede corromper bitácoras históricas.
+          }
+        </p>
+      </div>
+      <div class="modal-footer bg-light p-3 border-top d-flex justify-content-between">
+        <button type="button" class="btn btn-sm btn-secondary px-3 rounded-pill" (click)="confirmOpen.set(false)">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-sm btn-danger fw-bold px-3 rounded-pill shadow-sm" (click)="ejecutarConfirmacion()">
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

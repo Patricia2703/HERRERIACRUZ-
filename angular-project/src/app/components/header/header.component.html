@@ -1,27 +1,45 @@
-<header class="app-header">
-  <div class="header-inner">
+<header class="app-header navbar navbar-expand bg-white border-bottom shadow-sm px-4 justify-content-end align-items-center" style="height: 65px;">
+  
+  <div class="dropdown" *ngIf="usuarioLogueado">
+    <button class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center border shadow-sm dropdown-toggle hide-caret" 
+            type="button" 
+            id="userMenuDropdown" 
+            data-bs-toggle="dropdown" 
+            aria-expanded="false" 
+            style="width: 42px; height: 42px;">
+      <i class="fa-solid fa-user text-secondary fs-5"></i>
+    </button>
 
-    <!-- Left -->
-    <div class="header-left">
-      <button class="menu-toggle" (click)="onToggle()">☰</button>
-      <div class="brand">
-        <div class="brand-icon">HC</div>
-        <h1>Herrería Cruz</h1>
-      </div>
-    </div>
+    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-3" aria-labelledby="userMenuDropdown" style="width: 240px; border-radius: 12px;">
+      <li class="text-center py-2">
+        <div class="bg-warning text-dark fw-bold rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 shadow-sm" style="width: 50px; height: 50px; font-size: 1.2rem;">
+          {{ inicialNombre }}
+        </div>
+        <h6 class="fw-bold text-dark my-1">{{ usuarioLogueado.nombre }}</h6>
+        <span class="badge bg-dark-subtle text-dark text-uppercase small fw-semibold tracking-wider px-2 py-1">
+          {{ usuarioLogueado.rol }}
+        </span>
+      </li>
+      
+      <li><hr class="dropdown-divider my-2"></li>
+      
+      <li class="px-2 py-1 small text-muted text-truncate">
+        <i class="fa-solid fa-envelope me-2 text-secondary"></i> {{ usuarioLogueado.correo }}
+      </li>
+      <li class="px-2 py-1 small text-muted mb-2">
+        <i class="fa-solid fa-shield-halved me-2 text-secondary"></i> 
+        {{ usuarioLogueado.rol === 'Administrador' ? 'Acceso Total' : 'Acceso Limitado' }}
+      </li>
 
-    <!-- Right -->
-    <div class="header-right">
-      <button class="btn-export" (click)="exportPDF()">
-        <span>⬇</span>
-        <span class="btn-label">Exportar PDF</span>
-      </button>
-      <button class="icon-btn" title="Notificaciones">
-        🔔
-        <span class="notif-dot"></span>
-      </button>
-      <button class="icon-btn" title="Usuario">👤</button>
-    </div>
+      <li><hr class="dropdown-divider my-2"></li>
 
+      <li>
+        <button class="dropdown-item btn w-100 text-start text-danger rounded-2 py-2 d-flex align-items-center gap-2 fw-semibold" (click)="logout()">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Cerrar Sesión</span>
+        </button>
+      </li>
+    </ul>
   </div>
+
 </header>

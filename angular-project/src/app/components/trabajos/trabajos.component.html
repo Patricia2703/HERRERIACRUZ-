@@ -1,60 +1,73 @@
-<div class="page-container container-fluid p-4">
-  <div class="page-title d-flex justify-content-between align-items-center mb-4">
+<div class="container-fluid p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h2 class="fw-bold text-dark">Gestión de Trabajos</h2>
-      <p class="text-muted small">Seguimiento de proyectos en taller y fechas de entrega</p>
+      <h2 class="fw-bold"><i class="fa-solid fa-hammer text-warning me-2"></i>Taller de Producción</h2>
+      <p class="text-muted">Control de fabricación, asignación de fechas y seguimiento de obras activas</p>
     </div>
-    <button class="btn btn-warning fw-bold px-4 shadow-sm" (click)="openAdd()">
-      <i class="fa-solid fa-hammer me-2"></i>Nuevo Trabajo
+    <button class="btn btn-warning text-dark fw-bold px-4 shadow-sm" style="background-color: #ffc107;" (click)="openNuevoTrabajo()">
+      <i class="fa-solid fa-square-plus me-2"></i>Iniciar Orden de Trabajo
     </button>
   </div>
 
-  <div class="panel card border-0 shadow-sm overflow-hidden">
+  <div class="card border-0 shadow-sm">
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
-        <thead class="bg-light text-secondary small fw-bold text-uppercase">
+        <thead class="bg-light">
           <tr>
-            <th class="ps-4">ID Trabajo</th>
-            <th>Cotización Ref.</th>
-            <th>Estado</th>
-            <th>Inicio</th>
-            <th>Fin Estimado</th>
-            <th class="text-end pe-4">Acciones</th>
+            <th class="ps-4">ID Orden</th>
+            <th>Cliente / Destino de Obra</th>
+            <th>Fecha Inicio</th>
+            <th>Fecha Entrega / Fin</th>
+            <th>Estatus del Proyecto</th>
+            <th class="text-end pe-4">Gestión</th>
           </tr>
         </thead>
         <tbody>
-          @for (t of trabajos(); track t.id_trabajo) {
+          @for (trabajo of trabajosConCliente(); track trabajo.id_trabajo) {
             <tr>
-              <td class="ps-4 fw-bold text-primary">#{{ t.id_trabajo }}</td>
+              <td class="ps-4 fw-bold text-muted">#{{ trabajo.id_trabajo }}</td>
               <td>
-                <span class="badge bg-light text-dark border">
-                  <i class="fa-solid fa-file-contract me-1 text-warning"></i> COT-{{ t.cotizacion_id }}
+                <div class="fw-bold text-dark text-uppercase mb-1" style="letter-spacing: 0.3px; font-size: 0.95rem;">
+                  <i class="fa-solid fa-user text-warning me-2 small"></i>{{ trabajo.nombre_cliente }}
+                </div>
+                <span class="badge bg-light text-secondary border fw-normal">Folio Base: #{{ trabajo.cotizacion_id }}</span>
+              </td>
+              <td>
+                <span class="text-secondary small">
+                  <i class="fa-regular fa-calendar-check me-1 text-primary"></i>
+                  {{ trabajo.fecha_inicio ? (trabajo.fecha_inicio | date:'dd/MM/yyyy') : 'Sin fecha' }}
                 </span>
               </td>
               <td>
-                <span class="badge" [ngClass]="estadoBadge(t.estado)">
-                  <i class="fa-solid fa-circle me-1 small"></i> {{ t.estado | uppercase }}
+                <span class="text-secondary small">
+                  <i class="fa-regular fa-calendar-times me-1 text-danger"></i>
+                  {{ trabajo.fecha_fin ? (trabajo.fecha_fin | date:'dd/MM/yyyy') : 'Pendiente de entrega' }}
                 </span>
               </td>
-              <td class="text-muted small">{{ t.fecha_inicio || '---' }}</td>
-              <td class="text-muted small">{{ t.fecha_fin || '---' }}</td>
+              <td>
+                @if (trabajo.estado === 'pendiente') {
+                  <span class="badge bg-secondary-subtle text-secondary px-3 py-1 border border-secondary text-uppercase">En Espera</span>
+                } @else if (trabajo.estado === 'en proceso') {
+                  <span class="badge bg-warning-subtle text-warning text-dark px-3 py-1 border border-warning text-uppercase">En Forja / Taller</span>
+                } @else {
+                  <span class="badge bg-success-subtle text-success px-3 py-1 border border-success text-uppercase">Listo / Entregado</span>
+                }
+              </td>
               <td class="text-end pe-4">
-                <div class="btn-group shadow-sm">
-                  <button class="btn btn-sm btn-white text-primary border" title="Asignar Empleados">
-                    <i class="fa-solid fa-user-plus"></i>
+                <div class="d-flex justify-content-end gap-2">
+                  <button class="btn btn-sm btn-outline-secondary border-0" (click)="openEditarTrabajo(trabajo)">
+                    <i class="fa-solid fa-gear fs-6"></i>
                   </button>
-                  <button class="btn btn-sm btn-white text-danger border" (click)="delete(t.id_trabajo!)">
-                    <i class="fa-solid fa-trash"></i>
+                  <button class="btn btn-sm btn-outline-danger border-0" (click)="eliminarTrabajo(trabajo.id_trabajo!)">
+                    <i class="fa-solid fa-trash-can"></i>
                   </button>
                 </div>
               </td>
             </tr>
-          }
-          @if (trabajos().length === 0) {
+          } @empty {
             <tr>
               <td colspan="6" class="text-center py-5 text-muted">
-                <i class="fa-solid fa-box-open d-block mb-2 fs-3"></i>
-                No hay trabajos activos en este momento.
+                No hay órdenes de fabricación activas.
               </td>
             </tr>
           }
@@ -65,47 +78,53 @@
 </div>
 
 @if (isModalOpen()) {
-  <div class="modal-backdrop show"></div>
-  <div class="modal d-block shadow-lg border-0 rounded-4">
-    <div class="modal-header border-0">
-      <h5 class="fw-bold"><i class="fa-solid fa-gear me-2 text-warning"></i>{{ editingTrabajo() ? 'Actualizar' : 'Iniciar' }} Trabajo</h5>
-      <button class="btn-close" (click)="isModalOpen.set(false)"></button>
-    </div>
-    <div class="modal-body py-3">
-      <div class="form-group mb-3">
-        <label class="form-label fw-bold small">Vincular a Cotización</label>
-        <select class="form-select border-2" [(ngModel)]="form.cotizacion_id">
-          <option [value]="0">Seleccione una cotización aprobada...</option>
-          @for (c of cotizaciones(); track c.id_cotizacion) {
-            <option [value]="c.id_cotizacion">ID: {{ c.id_cotizacion }} - {{ c.descripcion | slice:0:30 }}...</option>
-          }
-        </select>
-      </div>
-
-      <div class="row g-3 mb-3">
-        <div class="col-6">
-          <label class="form-label fw-bold small">Fecha Inicio</label>
-          <input type="date" class="form-control" [(ngModel)]="form.fecha_inicio">
+  <div class="modal-backdrop fade show" style="background-color: rgba(0,0,0,0.4); z-index: 1040;"></div>
+  <div class="modal d-block" tabindex="-1" style="z-index: 1050;">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
+        <div class="modal-header border-0 pt-4 px-4 pb-2">
+          <h5 class="modal-title fw-bold text-dark">
+            <i class="fa-solid fa-fire-burner text-warning me-2"></i>
+            {{ isEditMode() ? 'Actualizar Progreso' : 'Iniciar Nueva Orden' }}
+          </h5>
+          <button type="button" class="btn-close" (click)="isModalOpen.set(false)"></button>
         </div>
-        <div class="col-6">
-          <label class="form-label fw-bold small">Fecha Fin</label>
-          <input type="date" class="form-control" [(ngModel)]="form.fecha_fin">
+        <div class="modal-body px-4 py-2">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label small fw-semibold text-muted mb-1">Cliente Vinculado</label>
+              @if (isEditMode()) {
+                <div class="form-control py-2 bg-light fw-bold text-dark text-uppercase">
+                  {{ clienteEdicionActual }} <span class="text-muted small fw-normal">(Folio #{{ formTrabajo.cotizacion_id }})</span>
+                </div>
+              } @else {
+                <select class="form-select py-2 fw-semibold text-uppercase" [(ngModel)]="formTrabajo.cotizacion_id">
+                  <option [value]="null" disabled selected>Selecciona un cliente...</option>
+                  @for (c of cotizacionesDisponibles(); track c.id_cotizacion) {
+                    <option [value]="c.id_cotizacion">
+                      {{ c.cliente || c.nombre_cliente || c.nombre || 'Folio #' + c.id_cotizacion }}
+                    </option>
+                  }
+                </select>
+              }
+            </div>
+            <div class="col-12">
+              <label class="form-label small fw-semibold text-muted mb-1">Estatus del Trabajo en Taller</label>
+              <select class="form-select py-2 fw-semibold" [(ngModel)]="formTrabajo.estado" (change)="onEstatusChange()">
+                <option value="pendiente">Pendiente / En Espera de Material</option>
+                <option value="en proceso">En Proceso de Fabricación (Taller)</option>
+                <option value="terminado">Terminado / Instalado con Cliente</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 p-4 d-flex gap-2">
+          <button class="btn btn-light border px-4 py-2 flex-grow-1 fw-semibold" (click)="isModalOpen.set(false)">Cancelar</button>
+          <button class="btn btn-warning text-dark px-4 py-2 flex-grow-1 fw-bold shadow-sm" (click)="guardarTrabajo()" [disabled]="!formTrabajo.cotizacion_id" style="background-color: #ffc107;">
+            {{ isEditMode() ? 'Actualizar Estatus' : 'Lanzar a Fabricación' }}
+          </button>
         </div>
       </div>
-
-      <div class="form-group mb-3">
-        <label class="form-label fw-bold small">Estado del Proyecto</label>
-        <select class="form-select border-2" [(ngModel)]="form.estado">
-          <option value="pendiente">Pendiente</option>
-          <option value="en proceso">En Proceso</option>
-          <option value="terminado">Terminado</option>
-          <option value="entregado">Entregado</option>
-        </select>
-      </div>
-    </div>
-    <div class="modal-footer border-0">
-      <button class="btn btn-light fw-bold px-4" (click)="isModalOpen.set(false)">Cancelar</button>
-      <button class="btn btn-warning fw-bold px-4" (click)="save()">Confirmar Trabajo</button>
     </div>
   </div>
 }

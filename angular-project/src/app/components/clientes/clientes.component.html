@@ -1,4 +1,5 @@
 <div class="container-fluid p-4">
+  
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h2 class="fw-bold text-dark"><i class="fa-solid fa-address-book me-2 text-warning"></i>Gestión de Clientes</h2>
@@ -64,7 +65,7 @@
 
 @if (isModalOpen()) {
   <div class="modal-backdrop fade show"></div>
-  <div class="modal d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+  <div class="modal d-block animate__animated animate__fadeIn animate__faster" tabindex="-1" style="background: rgba(0,0,0,0.5);">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content shadow-lg border-0">
         <div class="modal-header bg-warning text-dark border-0">
@@ -114,3 +115,46 @@
     </div>
   </div>
 }
+
+<div class="modal d-block bg-dark bg-opacity-25" tabindex="-1" style="z-index: 2000;" *ngIf="alertaOpen()">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden text-center">
+      <div class="p-4 text-white" [ngClass]="alertaEsExito() ? 'bg-success' : 'bg-danger'">
+        <i class="fas fa-3x mb-2" [ngClass]="alertaEsExito() ? 'fa-check-circle' : 'fa-exclamation-triangle'"></i>
+        <h5 class="fw-bold m-0">{{ alertaEsExito() ? '¡Excelente!' : '¡Atención!' }}</h5>
+      </div>
+      <div class="modal-body p-4 bg-white">
+        <p class="text-secondary m-0 small fw-semibold">{{ alertaMensaje() }}</p>
+      </div>
+      <div class="p-3 bg-light border-top text-center">
+        <button type="button" class="btn btn-dark fw-bold px-4 btn-sm rounded-pill shadow-sm" (click)="cerrarAlerta()">
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal d-block bg-dark bg-opacity-50" tabindex="-1" style="z-index: 1900;" *ngIf="confirmOpen()">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden">
+      <div class="p-4 bg-danger text-white text-center">
+        <i class="fa-solid fa-trash-can fa-3x mb-2"></i>
+        <h5 class="fw-bold m-0">¿Eliminar Cliente?</h5>
+      </div>
+      <div class="modal-body p-4 text-center bg-white">
+        <p class="text-muted m-0 small fw-semibold">
+          Esta acción quitará al cliente de forma definitiva. Esta operación no se puede deshacer.
+        </p>
+      </div>
+      <div class="modal-footer bg-light p-3 border-top d-flex justify-content-between">
+        <button type="button" class="btn btn-sm btn-secondary px-3 rounded-pill" (click)="confirmOpen.set(false)">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-sm btn-danger fw-bold px-3 rounded-pill shadow-sm" (click)="confirmarEliminacion()">
+          Sí, Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

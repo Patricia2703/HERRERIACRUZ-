@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # Servicio 1: El Servidor de Base de Datos MySQL
+  db-server:
+    image: mysql:8.0
+    container_name: db-server
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234567"          # La misma contraseña de tu config.py
+      MYSQL_DATABASE: "herreriacruz"          # Nombre en minúsculas
+    ports:
+      - "3306:3306"
+    volumes:
+      # Carga tu script unificado automáticamente al iniciar
+      - ./db:/docker-entrypoint-initdb.d
+    networks:
+      - herreria-net
+
+  # Servicio 2: Tu Backend en Flask (Carpeta "Crud Python")
+  mi-api-flask:
+    build:
+      context: "./Crud Python"                # Nombre exacto con espacio y mayúsculas
+      dockerfile: Dockerfile
+    container_name: mi-api-flask
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+    depends_on:
+      - db-server
+    networks:
+      - herreria-net
+
+  # Servicio 3: Tu Frontend en Angular (Carpeta "angular-project")
+  mi-sitio-web:
+    build:
+      context: "./angular-project"            # Nombre exacto de tu carpeta de Angular
+      dockerfile: Dockerfile
+    container_name: mi-sitio-web
+    restart: always
+    ports:
+      - "80:80"                               # Expone Angular en el puerto web estándar
+    depends_on:
+      - mi-api-flask
+    networks:
+      - herreria-net
+
+networks:
+  herreria-net:
+    driver: bridge

@@ -1,0 +1,35 @@
+
+.card-catalogo {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+/* Cuando pasas el mouse por encima de la tarjeta: se eleva y aumenta su sombra */
+.card-catalogo:hover {
+  transform: translateY(-8px); /* Eleva la tarjeta 8 píxeles */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important; /* Sombra más pronunciada */
+}
+
+/* Control de la imagen dentro de la tarjeta */
+.img-efecto {
+  transition: transform 0.5s ease; /* Transición suave para el zoom */
+}
+
+/* Cuando pasas el mouse por la tarjeta, la imagen hace un leve acercamiento */
+.card-catalogo:hover .img-efecto {
+  transform: scale(1.06); /* Zoom del 6% */
+}
+
+/* Opcional: Pequeño destello en los iconos de herramientas al pasar el mouse */
+.card-catalogo:hover .fa-hammer {
+  animation: sacudir 0.5s ease-in-out;
+}
+.card-catalogo:hover .icon-martillo {
+  animation: sacudir 0.5s ease-in-out;
+}
+
+@keyframes sacudir {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-15deg); }
+  75% { transform: rotate(15deg); }
+}

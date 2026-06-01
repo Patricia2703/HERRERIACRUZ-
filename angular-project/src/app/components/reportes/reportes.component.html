@@ -1,1 +1,93 @@
-<p>Módulo en construccion </p>
+<div class="container-fluid p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold text-dark m-0">📊 Panel de Reportes y Rendimiento</h2>
+      <p class="text-muted">Analiza las finanzas, estados de proyectos e insumos de Herrería Cruz</p>
+    </div>
+    <button class="btn btn-primary" (click)="cargarEstadisticas()">
+      🔄 Actualizar Datos
+    </button>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0 h-100 bg-white p-3 border-start border-success border-4 rounded-3">
+        <span class="text-muted fw-bold text-uppercase small">Total Cobrado (Ingresos Reales)</span>
+        <h2 class="text-success fw-bold mt-2">${{ datosFinancieros().total_ganado | number:'1.2-2' }}</h2>
+        <small class="text-muted">Dinero ingresado por abonos y liquidaciones</small>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-sm border-0 h-100 bg-white p-3 border-start border-danger border-4 rounded-3">
+        <span class="text-muted fw-bold text-uppercase small">Saldo Total Pendiente por Cobrar</span>
+        <h2 class="text-danger fw-bold mt-2">${{ datosFinancieros().total_pendiente | number:'1.2-2' }}</h2>
+        <small class="text-muted">Dinero asegurado en la calle por órdenes aprobadas</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card shadow-sm border-0 bg-white p-4 rounded-3 h-100">
+        <h4 class="fw-bold mb-3 text-dark">Estatus de Presupuestos</h4>
+        <p class="text-muted small">Volumen total gestionado: <strong>{{ totalCotizaciones() }}</strong> cotizaciones</p>
+        
+        <div class="mt-4">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="fw-medium">🟢 Aprobadas (En Ejecución)</span>
+            <span class="fw-bold">{{ aprobadasCount() }}</span>
+          </div>
+          <div class="progress mb-3" style="height: 10px;">
+            <div class="progress-bar bg-success" role="progressbar" 
+                 [style.width.%]="totalCotizaciones() > 0 ? (aprobadasCount() / totalCotizaciones()) * 100 : 0"></div>
+          </div>
+
+          <div class="d-flex justify-content-between mb-1">
+            <span class="fw-medium">🟡 Pendientes de Revisión</span>
+            <span class="fw-bold">{{ pendienteCount() }}</span>
+          </div>
+          <div class="progress mb-3" style="height: 10px;">
+            <div class="progress-bar bg-warning" role="progressbar" 
+                 [style.width.%]="totalCotizaciones() > 0 ? (pendienteCount() / totalCotizaciones()) * 100 : 0"></div>
+          </div>
+
+          <div class="d-flex justify-content-between mb-1">
+            <span class="fw-medium">🔴 Rechazadas</span>
+            <span class="fw-bold">{{ rechazadasCount() }}</span>
+          </div>
+          <div class="progress" style="height: 10px;">
+            <div class="progress-bar bg-danger" role="progressbar" 
+                 [style.width.%]="totalCotizaciones() > 0 ? (rechazadasCount() / totalCotizaciones()) * 100 : 0"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card shadow-sm border-0 bg-white p-4 rounded-3 h-100">
+        <h4 class="fw-bold mb-3 text-dark">Insumos más Utilizados</h4>
+        <p class="text-muted small">Materiales con mayor cantidad asignada en proyectos</p>
+
+        <div class="table-responsive mt-3">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Material</th>
+                <th class="text-center">Veces Solicitado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let mat of materialesTop()">
+                <td class="fw-semibold text-secondary">{{ mat.nombre }}</td>
+                <td class="text-center"><span class="badge bg-primary rounded-pill px-3">{{ mat.cantidad_total }}</span></td>
+              </tr>
+              <tr *ngIf="materialesTop().length === 0">
+                <td colspan="2" class="text-center text-muted py-3">No hay datos de consumos registrados</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

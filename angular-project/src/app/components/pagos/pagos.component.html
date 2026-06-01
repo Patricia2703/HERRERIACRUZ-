@@ -1,1 +1,208 @@
-<p>pagos works!</p>
+<div class="container-fluid p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold"><i class="fa-solid fa-folder-open text-warning me-2"></i>Seguimiento Financiero de Trabajos</h2>
+      <p class="text-muted">Consulta el estado de cuenta y gestiona los abonos de las órdenes aprobadas</p>
+    </div>
+    <button class="btn btn-warning text-dark fw-bold px-4 shadow-sm" style="background-color: #ffc107;" (click)="openNuevoPago()">
+      <i class="fa-solid fa-plus me-2"></i>Registrar Nuevo Pago
+    </button>
+  </div>
+
+  <div class="d-flex flex-column gap-3">
+    @for (cot of cotizacionesConCliente(); track cot.id_cotizacion) {
+      <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 10px;">
+        
+        <div class="p-3 bg-white d-flex flex-wrap align-items-center justify-content-between gap-3 border-start border-4"
+             [class.border-success]="getSumatoriaPagos(cot.id_cotizacion) >= cot.total"
+             [class.border-warning]="getSumatoriaPagos(cot.id_cotizacion) < cot.total"
+             style="cursor: pointer;" (click)="toggleHistorial(cot.id_cotizacion)">
+          
+          <div style="min-width: 200px;">
+            <span class="text-muted small fw-bold">FOLIO #{{ cot.id_cotizacion }}</span>
+            <h5 class="m-0 fw-bold text-dark text-uppercase">{{ cot.nombre_cliente }}</h5>
+            <small class="text-muted"><i class="fa-solid fa-user me-1"></i> Orden en ejecución</small>
+          </div>
+
+          <div class="text-center">
+            <span class="text-muted d-block small fw-semibold">Costo Total</span>
+            <span class="fw-bold text-dark fs-5">${{ cot.total | number:'1.2-2' }}</span>
+          </div>
+
+          <div class="text-center">
+            <span class="text-muted d-block small fw-semibold">Total Pagado</span>
+            <span class="fw-bold text-success fs-5">${{ getSumatoriaPagos(cot.id_cotizacion) | number:'1.2-2' }}</span>
+          </div>
+
+          <div class="text-center">
+            <span class="text-muted d-block small fw-semibold">Saldo Restante</span>
+            <span class="fw-bold fs-5" [class.text-danger]="(cot.total - getSumatoriaPagos(cot.id_cotizacion)) > 0" [class.text-muted]="(cot.total - getSumatoriaPagos(cot.id_cotizacion)) <= 0">
+              ${{ (cot.total - getSumatoriaPagos(cot.id_cotizacion)) | number:'1.2-2' }}
+            </span>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-sm btn-light border fw-semibold" 
+                    *ngIf="(cot.total - getSumatoriaPagos(cot.id_cotizacion)) > 0"
+                    (click)="$event.stopPropagation(); openNuevoPago(cot.id_cotizacion)">
+              <i class="fa-solid fa-hand-holding-dollar text-success me-1"></i>Abonar
+            </button>
+            
+            <button class="btn btn-sm btn-success fw-bold d-inline-flex align-items-center gap-1 shadow-sm px-3"
+                    *ngIf="(cot.total - getSumatoriaPagos(cot.id_cotizacion)) <= 0"
+                    (click)="$event.stopPropagation(); exportarRemision(cot.id_cotizacion)">
+              <i class="fa-solid fa-file-invoice-dollar"></i> Descargar Remisión
+            </button>
+
+            <i class="fa-solid" [class.fa-chevron-down]="cotizacionExpandida() !== cot.id_cotizacion" [class.fa-chevron-up]="cotizacionExpandida() === cot.id_cotizacion"></i>
+          </div>
+        </div>
+
+        @if (cotizacionExpandida() === cot.id_cotizacion) {
+          <div class="bg-light p-3 border-top">
+            <h6 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-clock-rotate-left me-2"></i>Historial de transacciones de esta orden</h6>
+            
+            <div class="table-responsive bg-white rounded shadow-sm">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-secondary small text-uppercase">
+                  <tr>
+                    <th class="ps-3">ID Pago</th>
+                    <th>Clasificación</th>
+                    <th>Método de Pago</th>
+                    <th>Monto Recibido</th>
+                    <th class="text-end pe-3">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (pago of getPagosDeCotizacion(cot.id_cotizacion); track pago.id_pago) {
+                    <tr>
+                      <td class="ps-3 text-muted fw-semibold">#{{ pago.id_pago }}</td>
+                      <td>
+                        @if (pago.tipo === 'anticipo') {
+                          <span class="badge bg-primary-subtle text-primary border border-primary-subtle text-uppercase px-2">Anticipo</span>
+                        } @else if (pago.tipo === 'finiquito') {
+                          <span class="badge bg-success-subtle text-success border border-success-subtle text-uppercase px-2">Finiquito</span>
+                        } @else {
+                          <span class="badge bg-warning-subtle text-dark border border-warning-subtle text-uppercase px-2">Parcial</span>
+                        }
+                      </td>
+                      <td class="text-capitalize small">
+                        <i class="fa-solid me-1" [class.fa-money-bill-wave]="pago.metodo_pago === 'efectivo'" [class.fa-credit-card]="pago.metodo_pago !== 'efectivo'"></i>
+                        {{ pago.metodo_pago }}
+                      </td>
+                      <td class="fw-bold text-success">${{ pago.monto | number:'1.2-2' }}</td>
+                      <td class="text-end pe-3">
+                        <button class="btn btn-link text-danger p-0" (click)="eliminarPago(pago.id_pago!)">
+                          <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="5" class="text-center py-3 text-muted small">
+                        No se han registrado abonos previos para este trabajo.
+                      </td> 
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+      </div>
+    } @empty {
+      <div class="card border-0 shadow-sm p-5 text-center text-muted">
+        <i class="fa-solid fa-triangle-exclamation fs-1 text-warning mb-3"></i>
+        <h5>No hay Órdenes de Trabajo Aprobadas</h5>
+        <p class="small m-0">Ve al módulo de cotizaciones y cambia el estatus de una orden a "Aprobada" para poder gestionarla aquí.</p>
+      </div>
+    }
+  </div>
+</div>
+
+@if (isModalOpen()) {
+  <div class="modal-backdrop fade show" style="background-color: rgba(0,0,0,0.5); z-index: 1040;"></div>
+  <div class="modal fade show d-block" tabindex="-1" role="dialog" style="z-index: 1050;">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 12px;">
+        
+        <div class="modal-header border-0 pt-4 px-4 pb-2">
+          <h5 class="modal-title fw-bold text-dark">
+            <i class="fa-solid fa-receipt text-warning me-2"></i>Registrar Abono / Pago
+          </h5>
+          <button type="button" class="btn-close" (click)="isModalOpen.set(false)" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body px-4 py-2">
+          <div class="row g-3">
+            
+            <div class="col-12">
+              <label class="form-label small fw-semibold text-muted mb-1">Cliente / Orden Destino</label>
+              <select class="form-select py-2 text-uppercase fw-semibold" [(ngModel)]="formPago.cotizacion_id" (change)="onCotizacionChange()">
+                <option [value]="null" disabled selected>Selecciona un cliente...</option>
+                @for (cot of cotizacionesConCliente(); track cot.id_cotizacion) {
+                  <option [value]="cot.id_cotizacion">{{ cot.nombre_cliente }} (Folio #{{ cot.id_cotizacion }})</option>
+                }
+              </select>
+            </div>
+
+            @if (saldoRestante !== null) {
+              <div class="col-12">
+                <div class="p-3 rounded bg-light border">
+                  <div class="d-flex justify-content-between small mb-1">
+                    <span>Costo de Estructura:</span> <strong class="text-dark">${{ totalCotizacionSeleccionada | number:'1.2-2' }}</strong>
+                  </div>
+                  <div class="d-flex justify-content-between small mb-1">
+                    <span>Abonado Previamente:</span> <strong class="text-success">${{ acumuladoPagado | number:'1.2-2' }}</strong>
+                  </div>
+                  <hr class="my-2">
+                  <div class="d-flex justify-content-between small fw-bold">
+                    <span class="text-primary">Saldo Límite Permitido:</span> <span class="fs-5 text-primary">${{ saldoRestante | number:'1.2-2' }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <div class="col-12">
+              <label class="form-label small fw-semibold text-muted mb-1">Monto de este Abono ($)</label>
+              <div class="input-group">
+                <span class="input-group-text bg-white border-end-0 text-success fw-bold">$</span>
+                <input type="number" class="form-control py-2 border-start-0 fw-bold text-success fs-5" [(ngModel)]="formPago.monto" placeholder="0.00">
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-muted mb-1">Clasificación</label>
+              <select class="form-select py-2" [(ngModel)]="formPago.tipo">
+                <option value="anticipo">Anticipo (Inicio)</option>
+                <option value="parcial">Abono Parcial</option>
+                <option value="finiquito">Finiquito (Entrega)</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label small fw-semibold text-muted mb-1">Método de Recibo</label>
+              <select class="form-select py-2" [(ngModel)]="formPago.metodo_pago">
+                <option value="efectivo">Efectivo</option>
+                <option value="transferencia">Transferencia</option>
+                <option value="tarjeta">Tarjeta Débito/Crédito</option>
+              </select>
+            </div>
+
+          </div>
+        </div> 
+
+        <div class="modal-footer border-0 p-4 d-flex gap-2">
+          <button type="button" class="btn btn-light border px-4 py-2 flex-grow-1 fw-semibold" (click)="isModalOpen.set(false)">Cancelar</button>
+          <button type="button" class="btn btn-warning text-dark px-4 py-2 flex-grow-1 fw-bold shadow-sm" 
+                  (click)="guardarPago()" 
+                  [disabled]="saldoRestante !== null && saldoRestante <= 0"
+                  style="background-color: #ffc107;">
+            Confirmar Ingreso
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+}

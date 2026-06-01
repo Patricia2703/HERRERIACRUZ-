@@ -16,15 +16,7 @@ export interface Categoria {
 
 
 
-export interface Trabajo {
-  id_trabajo?: number;   // Usa el mismo nombre que en tu HTML y DB
-  cotizacion_id: number;
-  estado: string;
-  fecha_inicio: string;
-  fecha_fin: string;
-  // Si tu Back-end NO manda descripción ni precio en "Trabajos", bórralos de aquí.
-  // Si los manda, asegúrate de que el formulario los tenga.
-}
+
 
 
 export interface Producto {
@@ -51,13 +43,7 @@ export interface Empleado {
   activo?: number;          // tinyint(1)
 }
 
-export interface Pago {
-  id_pago?: number;
-  trabajo_id: number;
-  monto: number;
-  fecha_pago: string;
-  metodo_pago: string; // Ej: Efectivo, Transferencia
-}
+
 
 export interface Catalogo {
   id_item?: number;
@@ -109,4 +95,54 @@ export interface DetalleCotizacion {
   precio_unitario: number;
   subtotal?: number;
   material_nombre?: string;
+}
+export interface Asistencia {
+  id_asistencia?: number;
+  empleado_id: number;
+  fecha: string;
+  hora_entrada: string;
+  hora_salida?: string | null;
+  horas_trabajadas?: number | null;
+  pago_calculado?: number | null;
+  nombre?: string;       // Viene del JOIN con empleados
+  apellidoP?: string;    // Viene del JOIN con empleados
+}
+
+export interface RegistroEntrada {
+  empleado_id: number;
+  fecha: string;
+  hora: string;
+}
+
+export interface RegistroSalida {
+  id_asistencia: number;
+  hora: string;
+}
+export interface Pago {
+  id_pago?: number;
+  trabajo_id?: number;       // Opcional para que no choque con cotizaciones
+  cotizacion_id?: number;    // El nuevo campo que usamos en tu vista
+  monto: number;
+  tipo: string;
+  metodo_pago: string;
+  fecha_pago?: string;       // Opcional para que tu formulario pase limpio
+  folio_cotizacion?: string; 
+  cliente_nombre?: string;
+}
+
+export interface RegistroPago {
+  cotizacion_id: number;
+  monto: number;
+  tipo: string;
+  metodo_pago: string;
+}
+export interface Trabajo {
+  id_trabajo?: number;
+  cotizacion_id: number;
+  estado: 'pendiente' | 'en proceso' | 'terminado' | string;
+  fecha_inicio?: string | null;
+  fecha_fin?: string | null;
+  // Campos auxiliares opcionales para la vista
+  folio_cotizacion?: string;
+  descripcion_trabajo?: string;
 }

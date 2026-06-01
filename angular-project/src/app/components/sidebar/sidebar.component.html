@@ -6,10 +6,11 @@
   <div class="sidebar-inner d-flex flex-column">
 
     <div class="sidebar-logo p-4">
-      <div class="logo-icon bg-warning text-dark fw-bold rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">HC</div>
+      <div class="logo-icon bg-warning text-dark fw-bold rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+        HC
+      </div>
       <div class="logo-text ms-2 d-inline-block align-middle">
         <h2 class="h5 mb-0 fw-bold">Herrería Cruz</h2>
-        <p class="small text-muted mb-0">Admin Panel</p>
       </div>
     </div>
 
@@ -21,9 +22,10 @@
               class="nav-btn d-flex align-items-center text-decoration-none p-3 rounded"
               [routerLink]="item.route"
               routerLinkActive="active"
-              [routerLinkActiveOptions]="{exact: item.route === '/'}"
+              [routerLinkActiveOptions]="{exact: item.route === '/dashboard'}"
               (click)="setActive(item.id)">
-              <i [class]="item.icon + ' me-3'"></i> <span class="nav-label">{{ item.label }}</span>
+              <i [class]="item.icon + ' me-3'"></i> 
+              <span class="nav-label">{{ item.label }}</span>
             </a>
           </li>
         }

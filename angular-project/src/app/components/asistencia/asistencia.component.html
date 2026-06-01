@@ -1,0 +1,328 @@
+<div class="container-fluid py-4 bg-light min-vh-100">
+
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+      <h2 class="fw-bold text-dark mb-1">Módulo de Asistencias y Taller</h2>
+      <p class="text-muted small mb-0">Gestión de tiempos, bitácora semanal y cálculo automático de nómina.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-primary fw-bold px-3 py-2 shadow-sm" (click)="abrirModalNomina()">
+        <i class="bi bi-calendar-check me-2"></i>Calcular Raya Semanal
+      </button>
+      <button class="btn btn-success fw-bold px-4 py-2 shadow-sm" (click)="abrirModalEntrada()">
+        <i class="bi bi-box-arrow-in-right me-2"></i>Registrar Entrada
+      </button>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-3 mb-4">
+    <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 fw-bold"><i class="bi bi-calendar3 me-2 text-warning"></i>Historial de Horarios de la Semana</h5>
+      <span class="badge bg-secondary px-3 py-2 fw-semibold">Mayo 2026</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle mb-0 text-center">
+        <thead class="table-secondary text-dark small fw-bold">
+          <tr>
+            <th class="py-3 text-start ps-3">Empleado</th>
+            <th class="py-3">Lunes</th>
+            <th class="py-3">Martes</th>
+            <th class="py-3">Miércoles</th>
+            <th class="py-3">Jueves</th>
+            <th class="py-3">Viernes</th>
+            <th class="py-3">Sábado</th>
+            <th class="py-3">Domingo</th>
+          </tr>
+        </thead>
+        <tbody class="fw-semibold small">
+          @for (row of listaHistorialSemanal(); track row.empleado) {
+            <tr>
+              <td class="text-start ps-3 text-dark fw-bold bg-light text-uppercase">{{ row.empleado }}</td>
+              <td><span class="badge px-2 py-2 w-100" [ngClass]="row.Lunes ? (row.Lunes.includes('En Taller') ? 'bg-warning text-dark' : 'bg-success-subtle text-success border border-success') : 'bg-light text-muted'">{{ row.Lunes || '---' }}</span></td>
+              <td><span class="badge px-2 py-2 w-100" [ngClass]="row.Martes ? (row.Martes.includes('En Taller') ? 'bg-warning text-dark' : 'bg-success-subtle text-success border border-success') : 'bg-light text-muted'">{{ row.Martes || '---' }}</span></td>
+              <td><span class="badge px-2 py-2 w-100" [ngClass]="row.Miercoles ? (row.Miercoles.includes('En Taller') ? 'bg-warning text-dark' : 'bg-success-subtle text-success border border-success') : 'bg-light text-muted'">{{ row.Miercoles || '---' }}</span></td>
+              <td><span class="badge px-2 py-2 w-100" [ngClass]="row.Jueves ? (row.Jueves.includes('En Taller') ? 'bg-warning text-dark' : 'bg-success-subtle text-success border border-success') : 'bg-light text-muted'">{{ row.Jueves || '---' }}</span></td>
+              <td><span class="badge px-2 py-2 w-100" [ngClass]="row.Viernes ? (row.Viernes.includes('En Taller') ? 'bg-warning text-dark' : 'bg-success-subtle text-success border border-success') : 'bg-light text-muted'">{{ row.Viernes || '---' }}</span></td>
+              <td><span class="badge px-2 py-2 w-100" [ngClass]="row.Sabado ? (row.Sabado.includes('En Taller') ? 'bg-warning text-dark' : 'bg-success-subtle text-success border border-success') : 'bg-light text-muted'">{{ row.Sabado || '---' }}</span></td>
+              <td><span class="badge px-2 py-2 w-100" [ngClass]="row.Domingo ? (row.Domingo.includes('En Taller') ? 'bg-warning text-dark' : 'bg-success-subtle text-success border border-success') : 'bg-light text-muted'">{{ row.Domingo || '---' }}</span></td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="text-muted py-4">No hay asistencias registradas en esta semana.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white py-3">
+      <h5 class="mb-0 fw-bold text-secondary"><i class="bi bi-clock-history me-2"></i>Flujo Diario Individual</h5>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0 text-center">
+        <thead class="table-light small text-uppercase text-muted">
+          <tr>
+            <th class="py-3">Fecha</th>
+            <th class="py-3 text-start">Empleado</th>
+            <th class="py-3">Entrada</th>
+            <th class="py-3">Salida</th>
+            <th class="py-3">Horas Trabajadas</th>
+            <th class="py-3">Monto Calculado</th>
+            <th class="py-3">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="small fw-semibold">
+          @for (asistencia of listaAsistencias(); track asistencia.id_asistencia) {
+            <tr>
+              <td>{{ asistencia.fecha | date:'dd/MM/yyyy' }}</td>
+              <td class="text-start text-dark fw-bold text-uppercase">{{ asistencia.nombre_empleado }}</td>
+              <td><span class="text-success"><i class="bi bi-caret-right-fill me-1"></i>{{ asistencia.hora_entrada }}</span></td>
+              <td>
+                @if (asistencia.hora_salida) {
+                  <span class="text-danger"><i class="bi bi-caret-left-fill me-1"></i>{{ asistencia.hora_salida }}</span>
+                } @else {
+                  <button class="btn btn-sm btn-outline-danger py-1 px-3 fw-bold rounded-pill" (click)="abrirModalSalida(asistencia)">
+                    Marcar Salida
+                  </button>
+                }
+              </td>
+              <td class="text-muted">{{ asistencia.horas_trabajadas }} hrs</td>
+              <td class="text-primary fw-bold">${{ asistencia.pago_calculado | number:'1.2-2' }}</td>
+              <td>
+                <button class="btn btn-sm text-secondary border-0" (click)="eliminarAsistencia(asistencia.id_asistencia)">
+                  <i class="bi bi-trash3-fill text-danger"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+@if (isModalEntradaOpen()) {
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal d-block backdrop-blur" tabindex="-1" style="background: rgba(0,0,0,0.4);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-success text-white py-3">
+          <h5 class="modal-title fw-bold"><i class="bi bi-box-arrow-in-right me-2"></i>Registrar Entrada</h5>
+          <button type="button" class="btn-close btn-close-white" (click)="isModalEntradaOpen.set(false)"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form (ngSubmit)="guardarEntrada()">
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-muted text-uppercase">Seleccionar Trabajador</label>
+              <select class="form-select py-2 fw-semibold text-uppercase" [(ngModel)]="formEntrada.empleado_id" name="empleado_id" required>
+                <option [ngValue]="null" disabled selected>-- Elige un empleado --</option>
+                @for (emp of listaEmpleados(); track emp.id_empleado) {
+                  <option [ngValue]="emp.id_empleado">{{ emp.nombre }}</option>
+                }
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-muted text-uppercase">Fecha de Registro</label>
+              <input type="date" class="form-control" [(ngModel)]="formEntrada.fecha" name="fecha" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-muted text-uppercase">Hora de Entrada</label>
+              <input type="time" class="form-control" [(ngModel)]="formEntrada.hora" name="hora" required>
+            </div>
+            <div class="d-flex gap-2 mt-4">
+              <button type="button" class="btn btn-light w-50 fw-semibold border" (click)="isModalEntradaOpen.set(false)">Cancelar</button>
+              <button type="submit" class="btn btn-success w-50 fw-bold">Guardar Entrada</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (isModalSalidaOpen()) {
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal d-block backdrop-blur" tabindex="-1" style="background: rgba(0,0,0,0.4);">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title fw-bold">Registrar Salida</h5>
+          <button type="button" class="btn-close btn-close-white" (click)="isModalSalidaOpen.set(false)"></button>
+        </div>
+        <div class="modal-body p-3">
+          <form (ngSubmit)="guardarSalida()">
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-muted text-uppercase">Hora de Salida</label>
+              <input type="time" class="form-control text-center form-control-lg" [(ngModel)]="formSalida.hora" name="hora" required>
+            </div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-light w-50 small fw-semibold border" (click)="isModalSalidaOpen.set(false)">Volver</button>
+              <button type="submit" class="btn btn-danger w-50 small fw-bold">Fijar Salida</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+@if (isModalNominaOpen()) {
+  <div class="modal-backdrop fade show"></div>
+  <div class="modal d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden">
+        
+        <div class="modal-header bg-primary text-white py-3">
+          <h5 class="modal-title fw-bold"><i class="bi bi-calendar-check me-2"></i>Cálculo de Raya por Rango Visual</h5>
+          <button type="button" class="btn-close btn-close-white" (click)="isModalNominaOpen.set(false)"></button>
+        </div>
+
+        <div class="modal-body p-4 bg-light">
+          <div class="row g-4">
+            
+            <div class="col-12 col-lg-7">
+              <div class="card border-0 shadow-sm p-3 rounded-3 bg-white h-100">
+                <label class="small fw-bold text-muted text-uppercase mb-2">1. Seleccionar Operario</label>
+                <select class="form-select text-uppercase fw-semibold mb-3 py-2" [(ngModel)]="formNomina.empleado_id" (change)="onEmpleadoNominaChange()" name="empleado_id">
+                  <option [ngValue]="null" disabled selected>-- Elige un operario para activar calendario --</option>
+                  @for (emp of listaEmpleados(); track emp.id_empleado) {
+                    <option [ngValue]="emp.id_empleado">{{ emp.nombre }}</option>
+                  }
+                </select>
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="small fw-bold text-dark text-uppercase">2. Marcar Rango (Haz Clic en los Días)</span>
+                  <span class="badge bg-dark">MAYO 2026</span>
+                </div>
+
+                <div class="border rounded-3 p-3 bg-light">
+                  <div class="row text-center fw-bold text-muted small mb-2">
+                    <div class="col">Lun</div><div class="col">Mar</div><div class="col">Mié</div>
+                    <div class="col">Jue</div><div class="col">Vie</div><div class="col">Sáb</div>
+                    <div class="col">Dom</div>
+                  </div>
+
+                  <div class="row text-center g-2">
+                    @for (dia of matrizCalendario(); track dia.fechaStr) {
+                      <div class="col" style="flex: 0 0 14.28%; max-width: 14.28%;">
+                        @if (dia.esMesActual) {
+                          <button type="button" 
+                            class="btn w-100 py-3 small d-flex flex-column align-items-center justify-content-center rounded-3 position-relative"
+                            [ngClass]="obtenerClaseEstiloDia(dia)"
+                            [disabled]="!formNomina.empleado_id"
+                            (click)="seleccionarFechaCalendario(dia.fechaStr)">
+                            <span class="fw-bold">{{ dia.numeroDia }}</span>
+                            @if (dia.tieneAsistencia) {
+                              <span class="position-absolute bottom-0 start-50 translate-middle-x mb-1 bg-success rounded-circle" style="width: 5px; height: 5px;"></span>
+                            }
+                          </button>
+                        } @else {
+                          <div class="w-100 py-3 text-transparent small">.</div>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <div class="d-flex gap-3 justify-content-center mt-3 small text-muted">
+                  <div><span class="badge bg-success-subtle border border-success text-success me-1">✓</span> Laborado</div>
+                  <div><span class="badge bg-primary text-white me-1">○</span> Inicio</div>
+                  <div><span class="badge bg-info text-dark me-1">○</span> Fin</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-lg-5">
+              <div class="card border-0 shadow-sm p-4 rounded-3 bg-white h-100 d-flex flex-column justify-content-between">
+                <div>
+                  <h6 class="fw-bold text-dark mb-3"><i class="bi bi-receipt me-2 text-primary"></i>3. Resumen del Periodo</h6>
+                  
+                  <div class="alert bg-light border p-3 rounded-3 mb-4 text-center">
+                    @if (formNomina.fecha_inicio && !formNomina.fecha_fin) {
+                      <span class="small text-muted d-block text-uppercase fw-bold">Fecha de Inicio Marcada</span>
+                      <strong class="text-primary d-block fs-5 mt-1">{{ formNomina.fecha_inicio | date:'dd / MMMM / yyyy' }}</strong>
+                      <span class="text-danger small mt-2 d-block"><i class="bi bi-info-circle me-1"></i>Selecciona el día de cierre en la cuadrícula</span>
+                    } @else if (formNomina.fecha_inicio && formNomina.fecha_fin) {
+                      <span class="small text-muted d-block text-uppercase fw-bold mb-2">Rango Completo Listo</span>
+                      <div class="d-flex justify-content-center align-items-center gap-2">
+                        <span class="badge bg-primary px-2 py-2 fs-6 fw-semibold">{{ formNomina.fecha_inicio | date:'dd' }}</span>
+                        <i class="bi bi-arrow-right text-muted px-1"></i>
+                        <span class="badge bg-info text-dark px-2 py-2 fs-6 fw-semibold">{{ formNomina.fecha_fin | date:'dd' }}</span>
+                      </div>
+                      <span class="text-muted small d-block mt-2">Mes Completo de {{ formNomina.fecha_inicio | date:'MMMM yyyy' }}</span>
+                    } @else {
+                      <span class="text-muted small d-block py-2"><i class="bi bi-hand-index-thumb me-2 fs-5 text-warning"></i>Toca un día en el calendario para marcar el inicio de la raya.</span>
+                    }
+                  </div>
+
+                  <button type="button" class="btn btn-primary w-100 fw-bold py-3 shadow-sm mb-4 fs-6"
+                    [disabled]="!formNomina.empleado_id || !formNomina.fecha_inicio || !formNomina.fecha_fin"
+                    (click)="calcularNomina()">
+                    <i class="bi bi-lightning-charge-fill me-2"></i>Procesar Raya Semanal
+                  </button>
+
+                  @if (resultadoNomina()) {
+                    <div class="card bg-success-subtle border border-success p-3 rounded-3 text-dark animate__animated animate__fadeIn">
+                      <h6 class="fw-bold text-success border-bottom border-success-subtle pb-2 mb-2">Resultados Obtenidos:</h6>
+                      <p class="mb-1 small d-flex justify-content-between">Horas Laboradas en Rango: <strong class="text-dark">{{ resultadoNomina().total_horas_semana }} hrs</strong></p>
+                      <p class="mb-1 small d-flex justify-content-between">Sueldo Base del Trabajador: <strong class="text-dark">${{ resultadoNomina().sueldo_por_hora }}/hr</strong></p>
+                      <hr class="my-2 text-success-subtle">
+                      <h5 class="fw-bold text-dark d-flex justify-content-between align-items-center mb-0 mt-1">
+                        Total Neto a Pagar: 
+                        <span class="badge bg-success px-3 py-2 text-white shadow-sm fs-5">${{ resultadoNomina().pago_semanal_calculado | number:'1.2-2' }}</span>
+                      </h5>
+                    </div>
+                  } @else {
+                    <div class="text-center py-4 border border-dashed rounded-3 text-muted bg-light bg-opacity-50">
+                      <i class="bi bi-calculator fa-2x mb-2 opacity-50 text-secondary"></i>
+                      <p class="small m-0 px-3 text-muted">Presiona el botón de arriba una vez que definas las fechas para calcular el dinero acumulado.</p>
+                    </div>
+                  }
+                </div>
+                <div class="text-end mt-4">
+                  <button type="button" class="btn btn-secondary px-4 fw-bold" (click)="isModalNominaOpen.set(false)">Cerrar Módulo</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<div class="modal d-block bg-dark bg-opacity-25" tabindex="-1" style="z-index: 2000;" *ngIf="alertaOpen()">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg text-center">
+      <div class="p-4 text-white" [ngClass]="alertaEsExito() ? 'bg-success' : 'bg-danger'">
+        <h5 class="fw-bold m-0">{{ alertaEsExito() ? '¡Éxito!' : '¡Error!' }}</h5>
+      </div>
+      <div class="modal-body p-4 bg-white">
+        <p class="text-secondary m-0 small fw-semibold">{{ alertaMensaje() }}</p>
+      </div>
+      <div class="p-3 bg-light text-center">
+        <button type="button" class="btn btn-dark fw-bold px-4 btn-sm rounded-pill shadow-sm" (click)="cerrarAlerta()">Aceptar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal d-block bg-dark bg-opacity-50" tabindex="-1" style="z-index: 1900;" *ngIf="confirmOpen()">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow-lg rounded-3">
+      <div class="p-4 bg-danger text-white text-center">
+        <h5 class="fw-bold m-0">¿Eliminar Registro?</h5>
+      </div>
+      <div class="modal-body p-4 text-center bg-white">
+        <p class="text-muted m-0 small fw-semibold">¿Estás seguro de borrar este bloque de asistencia diario?</p>
+      </div>
+      <div class="modal-footer bg-light p-3 border-top d-flex justify-content-between">
+        <button type="button" class="btn btn-sm btn-secondary px-3 rounded-pill" (click)="confirmOpen.set(false)">Cancelar</button>
+        <button type="button" class="btn btn-sm btn-danger fw-bold px-3 rounded-pill shadow-sm" (click)="ejecutarEliminacion()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
