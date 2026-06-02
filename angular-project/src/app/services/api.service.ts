@@ -8,7 +8,7 @@ import { Material, Unidad, Cotizacion, DetalleCotizacion, Pago , Trabajo} from '
 })
 export class ApiService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://35.194.11.111:5000'; 
+  private apiUrl = private apiUrl = 'http://35.194.11.111:5000';  
   getBaseUrl(): string {
     return this.apiUrl;
   }

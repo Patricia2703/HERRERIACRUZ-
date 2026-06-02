@@ -90,7 +90,7 @@ export class CotizacionesComponent implements OnInit {
   // Descarga directa al servidor Flask usando la ruta exacta (/remision)
   exportarRemision(idCotizacion: number | undefined) {
     if (!idCotizacion) return;
-    const urlBase = this.api.getBaseUrl ? this.api.getBaseUrl() : 'http://127.0.0.1:5000';
+    const urlBase = this.api.getBaseUrl ? this.api.getBaseUrl() : 'http://35.194.11.111:5000';
     window.open(`${urlBase}/cotizaciones/${idCotizacion}/remision`, '_blank');
   }
 
